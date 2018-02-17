@@ -41,6 +41,7 @@
 #include "validationinterface.h"
 #include "versionbits.h"
 #include "definition.h"
+#include "zerocoin.h"
 
 #include <atomic>
 #include <sstream>
@@ -60,7 +61,6 @@ using namespace std;
 #endif
 
 #define ZPOW_ERR 233000
-#define ZEROCOIN_MODULUS   "25195908475657893494027183240048398571429282126204032027777137836043662020707595556264018525880784406918290641249515082189298559149176184502808489120072844992687392807287776735971418347270261896375014971824691165077613379859095700097330459748808428401797429100642458691817195118746121515172654632282216869987549182422433637259085141865462043576798423387184774447920739934236584823824281198163815010674810451660377306056201619676256133844143603833904414952634432190114657544454178424020924616515723350778707749817125772467962926386356373289912154831438167899885040445364023527381951378636564391212010397122822120720357"
 
 /**
  * Global state
@@ -1092,423 +1092,56 @@ bool setParams = bnTrustedModulus.SetHexBool(ZEROCOIN_MODULUS);
 uint32_t securityLevel = 80;
 static libzerocoin::Params *ZCParams = new libzerocoin::Params(bnTrustedModulus);
 
-bool CheckSpendZcoinTransaction(const CTransaction &tx, CZerocoinEntry pubCoinTx, list <CZerocoinEntry> listPubCoin, libzerocoin::CoinDenomination targetDenomination, CValidationState &state, uint256 hashTx, bool isVerifyDB, int nHeight, bool isCheckWallet) {
-    // Check vOut
-    // Only one loop, we checked on the format before enter this case
-    // Check vIn
-    if(nHeight == 230857){
-        int x = 50;
-        LogPrintf("bad");
-    }
-    CWalletDB walletdb(pwalletMain->strWalletFile);
-    LogPrintf("CheckSpendZoinTransaction denomination=%d nHeight=%d\n", targetDenomination, nHeight);
-    BOOST_FOREACH(const CTxIn &txin, tx.vin)
-    {
-        if (txin.scriptSig.IsZerocoinSpend()) {
-
-            uint32_t pubcoinId = txin.nSequence;
-            if (pubcoinId < 1 || pubcoinId >= INT_MAX) { // IT BEGINS WITH 1
-                return state.DoS(100, false, NSEQUENCE_INCORRECT,
-                                             "CTransaction::CheckTransaction() : Error: nSequence is not correct format");
-            }
-
-            // Deserialize the CoinSpend intro a fresh object
-            std::vector<char, zero_after_free_allocator<char> > dataTxIn;
-            dataTxIn.insert(dataTxIn.end(), txin.scriptSig.begin() + 4, txin.scriptSig.end());
-            CDataStream serializedCoinSpend(SER_NETWORK, PROTOCOL_VERSION);
-            serializedCoinSpend.vch = dataTxIn;
-            libzerocoin::CoinSpend newSpend(ZCParams, serializedCoinSpend);
-            LogPrintf("PUBCOIN %d \n", pubcoinId);
-            if ((pubcoinId > 0) && (((targetDenomination == libzerocoin::ZQ_LOVELACE) && (pubcoinId >= ZC_V2_SWITCH_ID_1))
-                    || ((targetDenomination == libzerocoin::ZQ_GOLDWASSER) && (pubcoinId >= ZC_V2_SWITCH_ID_10))
-                    || ((targetDenomination == libzerocoin::ZQ_RACKOFF) && (pubcoinId >= ZC_V2_SWITCH_ID_25))
-                    || ((targetDenomination == libzerocoin::ZQ_PEDERSEN) && (pubcoinId >= ZC_V2_SWITCH_ID_50))
-                    || ((targetDenomination == libzerocoin::ZQ_WILLIAMSON) && (pubcoinId >= ZC_V2_SWITCH_ID_100)))) {
-                newSpend.setVersion(2);
-            }
-            // Create a new metadata object to contain the hash of the received
-            // ZEROCOIN_SPEND transaction. If we were a real client we'd actually
-            // compute the hash of the received transaction here.
-            uint256 txHash = ArithToUint256(arith_uint256(0));
-            libzerocoin::SpendMetaData newMetadata(0, txHash);
-            if ((pubcoinId > 0) && (((targetDenomination == libzerocoin::ZQ_LOVELACE) && (pubcoinId >= ZC_V2_SWITCH_ID_1))
-                    || ((targetDenomination == libzerocoin::ZQ_GOLDWASSER) && (pubcoinId >= ZC_V2_SWITCH_ID_10))
-                    || ((targetDenomination == libzerocoin::ZQ_RACKOFF) && (pubcoinId >= ZC_V2_SWITCH_ID_25))
-                    || ((targetDenomination == libzerocoin::ZQ_PEDERSEN) && (pubcoinId >= ZC_V2_SWITCH_ID_50))
-                    || ((targetDenomination == libzerocoin::ZQ_WILLIAMSON) && (pubcoinId >= ZC_V2_SWITCH_ID_100)))) {
-                newMetadata.accumulatorId = txin.nSequence;
-                newMetadata.txHash = tx.GetNormalizedHash();
-            }
-            libzerocoin::Accumulator accumulator(ZCParams, targetDenomination);
-            libzerocoin::Accumulator accumulatorRev(ZCParams, targetDenomination);
-            libzerocoin::Accumulator accumulatorPrecomputed(ZCParams, targetDenomination);
-            bool passVerify = false;
-
-            // VERIFY COINSPEND TX
-            // used pre-computed accumulator
-            walletdb.ReadZerocoinAccumulator(accumulatorPrecomputed, targetDenomination, pubcoinId);
-            if (newSpend.Verify(accumulatorPrecomputed, newMetadata)) {
-                passVerify = true;
-            }
-            int countPubcoin = 0;
-            if (!passVerify) {
-                BOOST_FOREACH(const CZerocoinEntry &pubCoinItem, listPubCoin) {
-                    //Do not cycle through some earlier blocks that cause error
-                    if(((nHeight > 27000 && nHeight < 30000) && targetDenomination == libzerocoin::ZQ_WILLIAMSON)) {
-                        passVerify = true;
-                        countPubcoin = 2;
-                        break;
-                    }
-                    if (pubCoinItem.denomination == targetDenomination &&
-                        (pubCoinItem.id >= 0 && (uint32_t) pubCoinItem.id == pubcoinId) &&
-                        pubCoinItem.nHeight != -1) {
-                        libzerocoin::PublicCoin pubCoinTemp(ZCParams, pubCoinItem.value, targetDenomination);
-                        if (!pubCoinTemp.validate()) {
-                            return state.DoS(100, false, PUBLIC_COIN_FOR_ACCUMULATOR_INVALID,
-                                             "CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!");
-                        }
-                        countPubcoin++;
-                        accumulator += pubCoinTemp;
-                        LogPrintf("count=%s, accumulator=%s\n", countPubcoin, accumulator.getValue().ToString().substr(0, 15));
-                        if (countPubcoin >= 2) { // MINIMUM REQUIREMENT IS 2 PUBCOINS
-                            if (newSpend.Verify(accumulator, newMetadata)) {
-                                LogPrintf("COIN SPEND TX DID VERIFY - accumulator!\n");
-                                // store this accumulator
-                                if (!isCheckWallet) {
-                                    walletdb.WriteZerocoinAccumulator(accumulator, targetDenomination, pubcoinId);
-                                }
-                                passVerify = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // It does not have this mint coins id, still sync
-                if (countPubcoin == 0) {
-                    return state.DoS(0, false, NO_MINT_ZEROCOIN, "CTransaction::CheckTransaction() : Error: Node does not have mint zerocoin to verify, please wait until ");
-                }
-            }
-
-            if (!passVerify) {
-                int countPubcoin = 0;
-//                LogPrint("CheckSpendZoinTransaction", "Check reverse\n");
-                BOOST_REVERSE_FOREACH(const CZerocoinEntry &pubCoinItem, listPubCoin) {
-//                    LogPrintf("--denomination = %d, id = %d, pubcoinId = %d height = %d\n",
-//                              pubCoinItem.denomination, pubCoinItem.id, pubcoinId, pubCoinItem.nHeight);
-                    if (pubCoinItem.denomination == targetDenomination &&
-                        (pubCoinItem.id >= 0 && (uint32_t) pubCoinItem.id == pubcoinId) &&
-                        pubCoinItem.nHeight != -1) {
-                        LogPrint("CheckSpendZoinTransaction", "--## denomination = %d, id = %d, pubcoinId = %d height = %d\n",
-                                  pubCoinItem.denomination, pubCoinItem.id, pubcoinId,
-                                  pubCoinItem.nHeight);
-                        libzerocoin::PublicCoin pubCoinTemp(ZCParams, pubCoinItem.value, targetDenomination);
-                        if (!pubCoinTemp.validate()) {
-                            return state.DoS(100,
-                                             error("CTransaction::CheckTransaction() : Error: Public Coin for Accumulator is not valid !!!"));
-                        }
-                        countPubcoin++;
-                        accumulatorRev += pubCoinTemp;
-                        LogPrintf("count=%s, accumulatorRev=%s\n", countPubcoin, accumulatorRev.getValue().ToString().substr(0, 15));
-                        if (countPubcoin >= 2) { // MINIMUM REQUIREMENT IS 2 PUBCOINS
-                            if (newSpend.Verify(accumulatorRev, newMetadata)) {
-                                LogPrintf("COIN SPEND TX DID VERIFY - accumulatorRev!\n");
-                                passVerify = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // It does not have this mint coins id, still sync
-                if (countPubcoin == 0) {
-                    return state.DoS(0, false, NO_MINT_ZEROCOIN, "CTransaction::CheckTransaction() : Error: Node does not have mint zerocoin to verify, please wait until ");
-                }
-            }
-
-            if (passVerify) {
-                // Pull the serial number out of the CoinSpend object. If we
-                // were a real Zerocoin client we would now check that the serial number
-                // has not been spent before (in another ZEROCOIN_SPEND) transaction.
-                // The serial number is stored as a Bignum.
-                if (!isVerifyDB && !isCheckWallet) {
-                    // chceck already store
-                    bool isAlreadyStored = false;
-
-                    CBigNum serialNumber = newSpend.getCoinSerialNumber();
-                    CWalletDB walletdb(pwalletMain->strWalletFile);
-
-                    std::list <CZerocoinSpendEntry> listCoinSpendSerial;
-                    walletdb.ListCoinSpendSerial(listCoinSpendSerial);
-                    BOOST_FOREACH(const CZerocoinSpendEntry &item, listCoinSpendSerial) {
-                        if (item.coinSerial == serialNumber
-                            && (nHeight > ZC_CHECK_BUG_FIXED_AT_BLOCK)
-                            && (item.id >= 0 && (uint32_t) item.id == pubcoinId)
-                            && item.hashTx != hashTx) {
-                            return state.DoS(0, error("CTransaction::CheckTransaction() : The CoinSpend serial has been used"));
-                        } else if (item.coinSerial == serialNumber
-                                   && item.hashTx == hashTx
-                                   && item.denomination == targetDenomination
-                                   && (item.id >= 0 && (uint32_t) item.id == pubcoinId)
-                                   && item.pubCoin != 0) {
-                            // UPDATING PROCESS
-                            BOOST_FOREACH(const CZerocoinEntry &pubCoinItem, listPubCoin) {
-                                if (pubCoinItem.value == item.pubCoin) {
-                                    pubCoinTx.nHeight = pubCoinItem.nHeight;
-                                    pubCoinTx.denomination = pubCoinItem.denomination;
-                                    // UPDATE FOR INDICATE IT HAS BEEN USED
-                                    pubCoinTx.IsUsed = true;
-                                    // REMOVE RANDOMNESS FOR PREVENT FUTURE USE
-                                    // pubCoinTx.randomness = 0;
-                                    // pubCoinTx.serialNumber = 0;
-                                    pubCoinTx.value = pubCoinItem.value;
-                                    pubCoinTx.id = pubCoinItem.id;
-                                    walletdb.WriteZerocoinEntry(pubCoinTx);
-                                    // Update UI wallet
-                                    // LogPrint("CheckSpendZoinTransaction", "pubcoin=%s, isUsed=Used\n", pubCoinItem.value.GetHex());
-                                    pwalletMain->NotifyZerocoinChanged(pwalletMain, pubCoinItem.value.GetHex(), "Used", CT_UPDATED);
-                                    break;
-                                }
-                            }
-                            isAlreadyStored = true;
-                            break;
-                        } else if (item.coinSerial == serialNumber
-                                   && item.hashTx == hashTx
-                                   && item.denomination == targetDenomination
-                                   && (item.id >= 0 && (uint32_t) item.id == pubcoinId)
-                                   && item.pubCoin == 0) {
-                            isAlreadyStored = true;
-                            break;
-                        }
-                    }
-
-                    if (!isAlreadyStored) {
-                        // INSERTING COINSPEND TO DB
-                        CZerocoinSpendEntry zoinSpend;
-                        zoinSpend.coinSerial = serialNumber;
-                        zoinSpend.hashTx = hashTx;
-                        zoinSpend.pubCoin = 0;
-                        zoinSpend.id = pubcoinId;
-                        bool fTestNet = (Params().NetworkIDString() == CBaseChainParams::TESTNET);
-                        if ((fTestNet || nHeight > ZC_CHECK_BUG_FIXED_AT_BLOCK)) {
-                            zoinSpend.denomination = targetDenomination;
-                        }
-                        LogPrintf("WriteCoinSpendSerialEntry, serialNumber=%s", serialNumber.ToString());
-                        walletdb.WriteCoinSpendSerialEntry(zoinSpend);
-                    }
-                }
-            } else {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-static const int DevRewardStartBlock = 230250;
-//static const int DevRewardStartBlock = 5;
-static const int DevRewardStopBlock = 255250;
-
 
 //static libzerocoin::Params *ZCParams;
-bool CheckTransaction(const CTransaction &tx, CValidationState &state, uint256 hashTx,  bool isVerifyDB, int nHeight, bool isCheckWallet) {
+bool CheckTransaction(const CTransaction &tx, CValidationState &state, uint256 hashTx,  bool isVerifyDB, int nHeight, bool isCheckWallet, CZerocoinTxInfo *zerocoinTxInfo) {
     LogPrintf("CheckTransaction nHeight=%s, isVerifyDB=%s, isCheckWallet=%s, txHash=%s\n", nHeight, isVerifyDB, isCheckWallet, tx.GetHash().ToString());
-//    LogPrintf("transaction = %s\n", tx.ToString());
+    //    LogPrintf("transaction = %s\n", tx.ToString());
     bool fTestNet = (Params().NetworkIDString() == CBaseChainParams::TESTNET);
     // Basic checks that don't depend on any context
     if (tx.vin.empty())
-        return state.DoS(10, false, REJECT_INVALID, "bad-txns-vin-empty");
+    return state.DoS(10, false, REJECT_INVALID, "bad-txns-vin-empty");
     if (tx.vout.empty())
-        return state.DoS(10, false, REJECT_INVALID, "bad-txns-vout-empty");
+    return state.DoS(10, false, REJECT_INVALID, "bad-txns-vout-empty");
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
     if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_BLOCK_BASE_SIZE)
-        return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
-
+    return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
+    
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
     BOOST_FOREACH(const CTxOut &txout, tx.vout)
     {
         if (txout.nValue < 0)
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-negative");
+        return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-negative");
         if (txout.nValue > MAX_MONEY)
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-toolarge");
+        return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-toolarge");
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
+        return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
     }
-
+    
     // Check for duplicate inputs
     set <COutPoint> vInOutPoints;
     BOOST_FOREACH(const CTxIn &txin, tx.vin)
     {
         if (vInOutPoints.count(txin.prevout))
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-duplicate");
+        return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-duplicate");
         vInOutPoints.insert(txin.prevout);
     }
-
+    
     if (tx.IsCoinBase()) {
         if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)
-            return state.DoS(100, false, REJECT_INVALID, "bad-cb-length");
-        // Check for founders inputs
-        if (((nHeight >= DevRewardStartBlock) && (nHeight <= DevRewardStopBlock))) {
-            bool found_1 = false;
-            bool found_2 = false;
-
-            CScript FOUNDER_1_SCRIPT;
-            CScript FOUNDER_2_SCRIPT;
-
-            if (!fTestNet) {
-                FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress("ZEQHowk7caz2DDuDsoGwcg3VeF3rvk28V8").Get());
-                FOUNDER_2_SCRIPT = GetScriptForDestination(CBitcoinAddress("ZMcH1qLoiGgsPFqA9BAfdb5UVvLfkejhAZ").Get());
-            }
-            else {
-                FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress("TKYGYopG5eHYc9FwDUoZKcVHrVENtNogEF").Get());
-                FOUNDER_2_SCRIPT = GetScriptForDestination(CBitcoinAddress("THpDyU1T8iVNiz1Gzfnhvrojc7xjAKvjUS").Get());
-            }
-
-            BOOST_FOREACH(const CTxOut &output, tx.vout) {
-                if (output.scriptPubKey == FOUNDER_1_SCRIPT && output.nValue == (int64_t)(22.5 * COIN)) {
-                    found_1 = true;
-                }
-                if (output.scriptPubKey == FOUNDER_2_SCRIPT && output.nValue == (int64_t)(15 * COIN)) {
-                    found_2 = true;
-                }
-            }
-
-            if (!(found_1 && found_2)) {
-                return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,
-                                 "CTransaction::CheckTransaction() : founders reward missing");
-            }
-        }
+        return state.DoS(100, false, REJECT_INVALID, "bad-cb-length");
+        if (!CheckDevFundInputs(tx, state, nHeight, fTestNet))
+        return false;
     } else {
-        BOOST_FOREACH(const CTxIn &txin, tx.vin)
-        if (txin.prevout.IsNull() && !txin.scriptSig.IsZerocoinSpend()) {
-            return state.DoS(10, false, REJECT_INVALID, "bad-txns-prevout-null");
-        }
-
-        // Check Mint Zerocoin Transaction
-        BOOST_FOREACH(const CTxOut &txout, tx.vout) {
-            if (!txout.scriptPubKey.empty() && txout.scriptPubKey.IsZerocoinMint()) {
-                LogPrintf("CheckMintZoinTransaction txHash = %s, isVerifyDB = %d\n", txout.GetHash().ToString(), isVerifyDB);
-                LogPrintf("nValue = %d\n", txout.nValue);
-                vector<unsigned char> vchZeroMint;
-                vchZeroMint.insert(vchZeroMint.end(), txout.scriptPubKey.begin() + 6,
-                                   txout.scriptPubKey.begin() + txout.scriptPubKey.size());
-                CBigNum pubCoin;
-                pubCoin.setvch(vchZeroMint);
-                libzerocoin::CoinDenomination denomination;
-                if (txout.nValue == libzerocoin::ZQ_LOVELACE * COIN) {
-                    denomination = libzerocoin::ZQ_LOVELACE;
-                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_LOVELACE);
-                    if (!checkPubCoin.validate()) {
-                        return state.DoS(100, false, PUBCOIN_NOT_VALIDATE,
-                                         "CTransaction::CheckTransaction() : PubCoin is not validate");
-                    }
-                } else if (txout.nValue == libzerocoin::ZQ_GOLDWASSER * COIN) {
-                    denomination = libzerocoin::ZQ_GOLDWASSER;
-                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_GOLDWASSER);
-                    if (!checkPubCoin.validate()) {
-                        return state.DoS(100, false, PUBCOIN_NOT_VALIDATE,
-                                         "CTransaction::CheckTransaction() : PubCoin is not validate");
-                    }
-                } else if (txout.nValue == libzerocoin::ZQ_RACKOFF * COIN) {
-                    denomination = libzerocoin::ZQ_RACKOFF;
-                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_RACKOFF);
-                    if (!checkPubCoin.validate()) {
-                        return state.DoS(100, false, PUBCOIN_NOT_VALIDATE,
-                                         "CTransaction::CheckTransaction() : PubCoin is not validate");
-                    }
-                } else if (txout.nValue == libzerocoin::ZQ_PEDERSEN * COIN) {
-                    denomination = libzerocoin::ZQ_PEDERSEN;
-                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_PEDERSEN);
-                    if (!checkPubCoin.validate()) {
-                        return state.DoS(100, false, PUBCOIN_NOT_VALIDATE,
-                                         "CTransaction::CheckTransaction() : PubCoin is not validate");
-                    }
-                } else if (txout.nValue == libzerocoin::ZQ_WILLIAMSON * COIN) {
-                    denomination = libzerocoin::ZQ_WILLIAMSON;
-                    libzerocoin::PublicCoin checkPubCoin(ZCParams, pubCoin, libzerocoin::ZQ_WILLIAMSON);
-                    if (!checkPubCoin.validate()) {
-                        return state.DoS(100, false, PUBCOIN_NOT_VALIDATE,
-                                         "CTransaction::CheckTransaction() : PubCoin is not validate");
-                    }
-                } else {
-                    return state.DoS(100, false, PUBCOIN_NOT_VALIDATE,
-                                     "CTransaction::CheckTransaction() : PubCoin is not validate");
-                }
-                if (!isVerifyDB && !isCheckWallet) {
-                    // Check the pubCoinValue didn't alr`eady store in the wallet
-                    CZerocoinEntry pubCoinTx;
-                    list <CZerocoinEntry> listPubCoin = list<CZerocoinEntry>();
-                    CWalletDB walletdb(pwalletMain->strWalletFile);
-                    walletdb.ListPubCoin(listPubCoin);
-                    bool isAlreadyStored = false;
-
-                    // CHECKING PROCESS
-                    BOOST_FOREACH(const CZerocoinEntry &pubCoinItem, listPubCoin) {
-                        if (pubCoinItem.value == pubCoin && pubCoinItem.denomination == denomination) {
-                            isAlreadyStored = true;
-                            break;
-                        }
-                    }
-                    // INSERT PROCESS
-                    if (!isAlreadyStored) {
-                        // TX DOES NOT INCLUDE IN DB
-                        LogPrintf("INSERTING\n");
-                        pubCoinTx.id = -1;
-                        pubCoinTx.denomination = denomination;
-                        pubCoinTx.value = pubCoin;
-                        pubCoinTx.randomness = 0;
-                        pubCoinTx.serialNumber = 0;
-                        pubCoinTx.nHeight = -1;
-                        LogPrintf("INSERT PUBCOIN ID: %d\n", pubCoinTx.id);
-                        walletdb.WriteZerocoinEntry(pubCoinTx);
-                    }
-                }
+        BOOST_FOREACH(const CTxIn &txin, tx.vin) {
+            if (txin.prevout.IsNull() && !txin.scriptSig.IsZerocoinSpend()) {
+                return state.DoS(10, false, REJECT_INVALID, "bad-txns-prevout-null");
             }
         }
-        // Check Spend Zerocoin Transaction
-        if (tx.IsZerocoinSpend()) {
-            // Check vOut
-            // Only one loop, we checked on the format before enter this case
-            BOOST_FOREACH(const CTxOut &txout, tx.vout)
-            {
-                CZerocoinEntry pubCoinTx;
-                list <CZerocoinEntry> listPubCoin;
-                if (!isVerifyDB) {
-                    CWalletDB walletdb(pwalletMain->strWalletFile);
-                    listPubCoin.clear();
-                    walletdb.ListPubCoin(listPubCoin);
-                    listPubCoin.sort(CompHeight);
-                    if (txout.nValue == libzerocoin::ZQ_LOVELACE * COIN) {
-                        // Check vIn
-                        if (!CheckSpendZcoinTransaction(tx, pubCoinTx, listPubCoin, libzerocoin::ZQ_LOVELACE, state, hashTx,isVerifyDB, nHeight, isCheckWallet)) {
-                            return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX IN ZQ_LOVELACE DID NOT VERIFY!"));
-                        };
-                    } else if (txout.nValue == libzerocoin::ZQ_GOLDWASSER * COIN) {
-                        if (!CheckSpendZcoinTransaction(tx, pubCoinTx, listPubCoin, libzerocoin::ZQ_GOLDWASSER, state, hashTx, isVerifyDB, nHeight, isCheckWallet)) {
-                            return state.DoS(100, error("CTr[ansaction::CheckTransaction() : COIN SPEND TX IN ZQ_GOLDWASSER DID NOT VERIFY!"));
-                        };
-                    } else if (txout.nValue == libzerocoin::ZQ_RACKOFF * COIN) {
-                        if (!CheckSpendZcoinTransaction(tx, pubCoinTx, listPubCoin, libzerocoin::ZQ_RACKOFF, state, hashTx, isVerifyDB, nHeight, isCheckWallet)) {
-                            return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX IN ZQ_RACKOFF DID NOT VERIFY!"));
-                        };
-                    } else if (txout.nValue == libzerocoin::ZQ_PEDERSEN * COIN) {
-                        if (!CheckSpendZcoinTransaction(tx, pubCoinTx, listPubCoin, libzerocoin::ZQ_PEDERSEN, state, hashTx, isVerifyDB, nHeight, isCheckWallet)) {
-                            return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX IN ZQ_PEDERSEN DID NOT VERIFY!"));
-                        };
-                    } else if (txout.nValue == libzerocoin::ZQ_WILLIAMSON * COIN) {
-                        if (!CheckSpendZcoinTransaction(tx, pubCoinTx, listPubCoin, libzerocoin::ZQ_WILLIAMSON, state, hashTx, isVerifyDB, nHeight, isCheckWallet)) {
-                            return state.DoS(100, error("CTransaction::CheckTransaction() : COIN SPEND TX IN ZQ_WILLIAMSON DID NOT VERIFY!"));
-                        };
-                    } else {
-                        return state.DoS(100, error("CTransaction::CheckTransaction() : Your spending txout value does not match"));
-                    }
-                    walletdb.Flush();
-                    walletdb.Close();
-                }
-            }
-        }
+        if (!CheckZerocoinTransaction(tx, state, hashTx, isVerifyDB, nHeight, isCheckWallet, zerocoinTxInfo))
+        return false;
     }
     return true;
 }
@@ -3251,105 +2884,28 @@ bool static DisconnectTip(CValidationState &state, const CChainParams &chainpara
     // Read block from disk.
     CBlock block;
     if (!ReadBlockFromDisk(block, pindexDelete, chainparams.GetConsensus()))
-        return AbortNode(state, "Failed to read block");
+    return AbortNode(state, "Failed to read block");
     // Apply the block atomically to the chain state.
     int64_t nStart = GetTimeMicros();
     {
         CCoinsViewCache view(pcoinsTip);
         if (!DisconnectBlock(block, state, pindexDelete, view))
-            return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
+        return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
         assert(view.Flush());
     }
     LogPrint("bench", "- Disconnect block: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
-    // Zerocoin reorg, set mint to height -1, id -1
-    list <CZerocoinEntry> listPubCoin = list<CZerocoinEntry>();
-    CWalletDB walletdb(pwalletMain->strWalletFile);
-    walletdb.ListPubCoin(listPubCoin);
-//    listPubCoin.sort(CompHeight);
-
-    list <CZerocoinSpendEntry> listCoinSpendSerial;
-    walletdb.ListCoinSpendSerial(listCoinSpendSerial);
-
-    BOOST_FOREACH(const CTransaction &tx, block.vtx){
-        // Check Spend Zerocoin Transaction
-        if (tx.IsZerocoinSpend()) {
-            BOOST_FOREACH(const CZerocoinSpendEntry &item, listCoinSpendSerial) {
-                if (item.hashTx == tx.GetHash()) {
-                    BOOST_FOREACH(const CZerocoinEntry &pubCoinItem, listPubCoin) {
-                        if (pubCoinItem.value == item.pubCoin) {
-                            CZerocoinEntry pubCoinTx;
-                            pubCoinTx.nHeight = pubCoinItem.nHeight;
-                            pubCoinTx.denomination = pubCoinItem.denomination;
-                            // UPDATE FOR INDICATE IT HAS BEEN RESET
-                            pubCoinTx.IsUsed = false;
-                            pubCoinTx.randomness = pubCoinItem.randomness;
-                            pubCoinTx.serialNumber = pubCoinItem.serialNumber;
-                            pubCoinTx.value = pubCoinItem.value;
-                            pubCoinTx.id = pubCoinItem.id;
-                            walletdb.WriteZerocoinEntry(pubCoinTx);
-                            LogPrintf("DisconnectTip() -> NotifyZerocoinChanged\n");
-                            LogPrintf("pubcoin=%s, isUsed=New\n", pubCoinItem.value.GetHex());
-                            pwalletMain->NotifyZerocoinChanged(pwalletMain, pubCoinItem.value.GetHex(), "New", CT_UPDATED);
-                            walletdb.EraseCoinSpendSerialEntry(item);
-                            pwalletMain->EraseFromWallet(item.hashTx);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Check Mint Zerocoin Transaction
-        BOOST_FOREACH(const CTxOut txout, tx.vout) {
-            if (!txout.scriptPubKey.empty() && txout.scriptPubKey.IsZerocoinMint()) {
-                vector<unsigned char> vchZeroMint;
-                vchZeroMint.insert(vchZeroMint.end(), txout.scriptPubKey.begin() + 6, txout.scriptPubKey.begin() + txout.scriptPubKey.size());
-                CBigNum pubCoin;
-                pubCoin.setvch(vchZeroMint);
-                int zerocoinMintHeight = -1;
-                BOOST_FOREACH(const CZerocoinEntry &pubCoinItem, listPubCoin) {
-                    if (pubCoinItem.value == pubCoin) {
-                        zerocoinMintHeight = pubCoinItem.nHeight;
-                        CZerocoinEntry pubCoinTx;
-                        pubCoinTx.id = -1;
-                        pubCoinTx.IsUsed = pubCoinItem.IsUsed;
-                        pubCoinTx.randomness = pubCoinItem.randomness;
-                        pubCoinTx.denomination = pubCoinItem.denomination;
-                        pubCoinTx.serialNumber = pubCoinItem.serialNumber;
-                        pubCoinTx.value = pubCoin;
-                        pubCoinTx.nHeight = -1;
-                        LogPrintf("- Pubcoin Disconnect Reset Pubcoin Id: %d Height: %d\n", pubCoinTx.id, pindexDelete->nHeight);
-                        walletdb.WriteZerocoinEntry(pubCoinTx);
-                    }
-
-                }
-
-                BOOST_FOREACH(const CZerocoinEntry &pubCoinItem, listPubCoin) {
-                    if (pubCoinItem.nHeight > zerocoinMintHeight) {
-                        CZerocoinEntry pubCoinTx;
-                        pubCoinTx.id = -1;
-                        pubCoinTx.IsUsed = pubCoinItem.IsUsed;
-                        pubCoinTx.randomness = pubCoinItem.randomness;
-                        pubCoinTx.denomination = pubCoinItem.denomination;
-                        pubCoinTx.serialNumber = pubCoinItem.serialNumber;
-                        pubCoinTx.value = pubCoin;
-                        pubCoinTx.nHeight = -1;
-                        LogPrintf("- Disconnect Reset Pubcoin Id: %d Height: %d\n", pubCoinTx.id, pindexDelete->nHeight);
-                        walletdb.WriteZerocoinEntry(pubCoinTx);
-                    }
-
-                }
-            }
-        }
-    }
-
+    
+    DisconnectTipZC(block, pindexDelete);
+    
     // Write the chain state to disk, if necessary.
     if (!FlushStateToDisk(state, FLUSH_STATE_IF_NEEDED))
-        return false;
-
+    return false;
+    
     if (!fBare) {
         // Resurrect mempool transactions from the disconnected block.
         std::vector <uint256> vHashUpdate;
-        BOOST_FOREACH(const CTransaction &tx, block.vtx) {
+        BOOST_FOREACH(
+                      const CTransaction &tx, block.vtx) {
             // ignore validation errors in resurrected transactions
             list <CTransaction> removed;
             CValidationState stateDummy;
@@ -3371,11 +2927,12 @@ bool static DisconnectTip(CValidationState &state, const CChainParams &chainpara
     // Let wallets know transactions went from 1-confirmed to
     // 0-confirmed or conflicted:
     BOOST_FOREACH(
-    const CTransaction &tx, block.vtx) {
+                  const CTransaction &tx, block.vtx) {
         SyncWithWallets(tx, pindexDelete->pprev, NULL);
     }
     return true;
 }
+
 static int64_t nTimeReadFromDisk = 0;
 static int64_t nTimeConnectTotal = 0;
 static int64_t nTimeFlush = 0;
@@ -3394,21 +2951,21 @@ bool static ConnectTip(CValidationState &state, const CChainParams &chainparams,
     CBlock block;
     if (!pblock) {
         if (!ReadBlockFromDisk(block, pindexNew, chainparams.GetConsensus()))
-            return AbortNode(state, "Failed to read block");
+        return AbortNode(state, "Failed to read block");
         pblock = &block;
     }
     // Apply the block atomically to the chain state.
     int64_t nTime2 = GetTimeMicros();
     nTimeReadFromDisk += nTime2 - nTime1;
     int64_t nTime3;
-//    LogPrintf("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
+    //    LogPrintf("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     {
         CCoinsViewCache view(pcoinsTip);
         bool rv = ConnectBlock(*pblock, state, pindexNew, view, chainparams);
         GetMainSignals().BlockChecked(*pblock, state);
         if (!rv) {
             if (state.IsInvalid())
-                InvalidBlockFound(pindexNew, state);
+            InvalidBlockFound(pindexNew, state);
             return error("ConnectTip(): ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
         }
         mapBlockSource.erase(pindexNew->GetBlockHash());
@@ -3420,16 +2977,20 @@ bool static ConnectTip(CValidationState &state, const CChainParams &chainparams,
     int64_t nTime4 = GetTimeMicros();
     nTimeFlush += nTime4 - nTime3;
     LogPrint("bench", "  - Flush: %.2fms [%.2fs]\n", (nTime4 - nTime3) * 0.001, nTimeFlush * 0.000001);
+    
+    if(!ConnectTipZC(state, chainparams,pindexNew, pblock))
+    return false;
+    
     // Write the chain state to disk, if necessary.
     if (!FlushStateToDisk(state, FLUSH_STATE_IF_NEEDED))
-        return false;
+    return false;
     int64_t nTime5 = GetTimeMicros();
     nTimeChainState += nTime5 - nTime4;
     LogPrint("bench", "  - Writing chainstate: %.2fms [%.2fs]\n", (nTime5 - nTime4) * 0.001,
              nTimeChainState * 0.000001);
     // Remove conflicting transactions from the mempool.
     list <CTransaction> txConflicted;
-//    LogPrint("ConnectTip", "pblock->ToString()=%s\n", pblock->ToString());
+    //    LogPrint("ConnectTip", "pblock->ToString()=%s\n", pblock->ToString());
     mempool.removeForBlock(pblock->vtx, pindexNew->nHeight, txConflicted, !IsInitialBlockDownload());
     // Update chainActive & related variables.
     UpdateTip(pindexNew, chainparams);
@@ -3442,151 +3003,13 @@ bool static ConnectTip(CValidationState &state, const CChainParams &chainparams,
     BOOST_FOREACH(const CTransaction &tx, pblock->vtx) {
         SyncWithWallets(tx, pindexNew, pblock);
     }
-
+    
     int64_t nTime6 = GetTimeMicros();
     nTimePostConnect += nTime6 - nTime5;
     nTimeTotal += nTime6 - nTime1;
     LogPrint("bench", "  - Connect postprocess: %.2fms [%.2fs]\n", (nTime6 - nTime5) * 0.001,
              nTimePostConnect * 0.000001);
     LogPrint("bench", "- Connect block: %.2fms [%.2fs]\n", (nTime6 - nTime1) * 0.001, nTimeTotal * 0.000001);
-    return true;
-}
-
-/**
- * Connect a new ZCblock to chainActive. pblock is either NULL or a pointer to a CBlock
- * corresponding to pindexNew, to bypass loading it again from disk.
- */
-bool static ConnectTipZC(CValidationState &state, const CChainParams &chainparams, CBlockIndex *pindexNew, const CBlock *pblock) {
-    CBlock block;
-    if (!pblock) {
-        if (!ReadBlockFromDisk(block, pindexNew, chainparams.GetConsensus()))
-            return AbortNode(state, "Failed to read block");
-        pblock = &block;
-    }
-    // Zerocoin reorg, calculate new height and id
-    list <CZerocoinEntry> listPubCoin = list<CZerocoinEntry>();
-    CWalletDB walletdb(pwalletMain->strWalletFile);
-    walletdb.ListPubCoin(listPubCoin);
-//    listPubCoin.sort(CompHeight);
-
-    BOOST_FOREACH(const CTransaction &tx, pblock->vtx){
-        // Check Mint Zerocoin Transaction
-        BOOST_FOREACH(const CTxOut txout, tx.vout) {
-            if (!txout.scriptPubKey.empty() && txout.scriptPubKey.IsZerocoinMint()) {
-                vector<unsigned char> vchZeroMint;
-                vchZeroMint.insert(vchZeroMint.end(), txout.scriptPubKey.begin() + 6, txout.scriptPubKey.begin() + txout.scriptPubKey.size());
-
-                CBigNum pubCoin;
-                pubCoin.setvch(vchZeroMint);
-                int zerocoinMintHeight = -1;
-                BOOST_FOREACH(const CZerocoinEntry &pubCoinItem, listPubCoin) {
-                    if (pubCoinItem.value == pubCoin) {
-//                        zerocoinMintHeight = pubCoinItem.nHeight;
-                        CZerocoinEntry pubCoinTx;
-                        pubCoinTx.id = -1;
-                        pubCoinTx.IsUsed = pubCoinItem.IsUsed;
-                        pubCoinTx.randomness = pubCoinItem.randomness;
-                        pubCoinTx.denomination = pubCoinItem.denomination;
-                        pubCoinTx.serialNumber = pubCoinItem.serialNumber;
-                        pubCoinTx.value = pubCoinItem.value;
-                        pubCoinTx.nHeight = -1;
-                        walletdb.WriteZerocoinEntry(pubCoinTx);
-                        LogPrintf("Pubcoin Connect Reset Pubcoin Denomination: %d Pubcoin Id: %d Height: %d\n", pubCoinTx.denomination, pubCoinTx.id, pubCoinItem.nHeight);
-                        zerocoinMintHeight = pindexNew->nHeight;
-                    }
-                }
-                BOOST_FOREACH(const CZerocoinEntry &pubCoinItem, listPubCoin) {
-                    if (pubCoinItem.nHeight > zerocoinMintHeight) {
-                        CZerocoinEntry pubCoinTx;
-                        pubCoinTx.id = -1;
-                        pubCoinTx.IsUsed = pubCoinItem.IsUsed;
-                        pubCoinTx.randomness = pubCoinItem.randomness;
-                        pubCoinTx.denomination = pubCoinItem.denomination;
-                        pubCoinTx.serialNumber = pubCoinItem.serialNumber;
-                        pubCoinTx.value = pubCoin;
-                        pubCoinTx.nHeight = -1;
-                        LogPrintf("Connect Reset Pubcoin Denomination: %d Pubcoin Id: %d Height: %d\n", pubCoinTx.denomination, pubCoinTx.id, pubCoinItem.nHeight);
-                        walletdb.WriteZerocoinEntry(pubCoinTx);
-                    }
-                }
-            }
-        }
-    }
-    return true;
-}
-
-/**
- * Connect a new ZCblock to chainActive. pblock is either NULL or a pointer to a CBlock
- * corresponding to pindexNew, to bypass loading it again from disk.
- */
-bool static ReArrangeZcoinMint(CValidationState &state, const CChainParams &chainparams, CBlockIndex *pindexNew, const CBlock *pblock) {
-//    LogPrintf("[ReArrangeZoinMint]\n");
-    CBlock block;
-    if (!pblock) {
-        if (!ReadBlockFromDisk(block, pindexNew, chainparams.GetConsensus()))
-            return AbortNode(state, "Failed to read block");
-        pblock = &block;
-    }
-    // Zerocoin reorg, calculate new height and id
-    list <CZerocoinEntry> listPubCoin = list<CZerocoinEntry>();
-    CWalletDB walletdb(pwalletMain->strWalletFile);
-    walletdb.ListPubCoin(listPubCoin);
-
-    BOOST_FOREACH(const CTransaction &tx, pblock->vtx){
-        // Check Mint Zerocoin Transaction
-        BOOST_FOREACH(const CTxOut txout, tx.vout) {
-            if (!txout.scriptPubKey.empty() && txout.scriptPubKey.IsZerocoinMint()) {
-                vector<unsigned char> vchZeroMint;
-                vchZeroMint.insert(vchZeroMint.end(), txout.scriptPubKey.begin() + 6,
-                                   txout.scriptPubKey.begin() + txout.scriptPubKey.size());
-                CBigNum pubCoin;
-                pubCoin.setvch(vchZeroMint);
-
-                BOOST_FOREACH(
-                const CZerocoinEntry &pubCoinItem, listPubCoin) {
-                    if (pubCoinItem.value == pubCoin) {
-                        CZerocoinEntry pubCoinTx;
-                        // PUBCOIN IS IN DB, BUT NOT UPDATE ID
-                        int currentId = 1;
-                        unsigned int countExistingItems = 0;
-                        listPubCoin.sort(CompHeight);
-                        BOOST_FOREACH(const CZerocoinEntry &pubCoinIdItem, listPubCoin) {
-//                            LogPrintf("denomination = %d, id = %d, height = %d\n", pubCoinIdItem.denomination, pubCoinIdItem.id, pubCoinIdItem.nHeight);
-                            if (pubCoinIdItem.id > 0) {
-                                if (pubCoinIdItem.nHeight <= pindexNew->nHeight) {
-                                    if (pubCoinIdItem.denomination == pubCoinItem.denomination) {
-                                        countExistingItems++;
-                                        if (pubCoinIdItem.id > currentId) {
-                                            currentId = pubCoinIdItem.id;
-                                            countExistingItems = 1;
-                                        }
-                                    }
-                                } else {
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (countExistingItems > 9) {
-                            currentId++;
-                        }
-                        pubCoinTx.id = currentId;
-
-                        pubCoinTx.IsUsed = pubCoinItem.IsUsed;
-                        pubCoinTx.randomness = pubCoinItem.randomness;
-                        pubCoinTx.denomination = pubCoinItem.denomination;
-                        pubCoinTx.serialNumber = pubCoinItem.serialNumber;
-                        pubCoinTx.value = pubCoinItem.value;
-                        pubCoinTx.nHeight = pindexNew->nHeight;
-                        LogPrintf("REORG PUBCOIN DENOMINATION: %d PUBCOIN ID: %d HEIGHT: %d\n",
-                                  pubCoinTx.denomination, pubCoinTx.id, pubCoinTx.nHeight);
-                        walletdb.WriteZerocoinEntry(pubCoinTx);
-                    }
-                }
-            }
-        }
-    }
-    walletdb.WriteCalculatedZCBlock(pindexNew->nHeight);
     return true;
 }
 
@@ -3682,22 +3105,17 @@ static bool ActivateBestChainStep(CValidationState &state, const CChainParams &c
     int nHeight = pindexFork ? pindexFork->nHeight : -1;
     // Build list of new blocks to connect.
     std::vector <CBlockIndex *> vpindexToConnect;
-    //btzc: add zoin code
-    std::vector <CBlockIndex *> vpindexToConnectZC;
     bool fContinue = true;
-//    LogPrintf("[ActivateBestChainStep] fContinue=%d, nHeight=%d, pindexMostWork->nHeight=%d\n", fContinue, nHeight, pindexMostWork->nHeight);
+    //    LogPrintf("[ActivateBestChainStep] fContinue=%d, nHeight=%d, pindexMostWork->nHeight=%d\n", fContinue, nHeight, pindexMostWork->nHeight);
     while (fContinue && nHeight != pindexMostWork->nHeight) {
         // Don't iterate the entire list of potential improvements toward the best tip, as we likely only need
         // a few blocks along the way.
         int nTargetHeight = std::min(nHeight + 32, pindexMostWork->nHeight);
         vpindexToConnect.clear();
         vpindexToConnect.reserve(nTargetHeight - nHeight);
-        //btzc: add zoin code
-        vpindexToConnectZC.clear();
         CBlockIndex *pindexIter = pindexMostWork->GetAncestor(nTargetHeight);
         while (pindexIter && pindexIter->nHeight != nHeight) {
             vpindexToConnect.push_back(pindexIter);
-            vpindexToConnectZC.push_back(pindexIter);
             pindexIter = pindexIter->pprev;
         }
         nHeight = nTargetHeight;
@@ -3726,22 +3144,16 @@ static bool ActivateBestChainStep(CValidationState &state, const CChainParams &c
                 }
             }
         }
-        BOOST_FOREACH(CBlockIndex * pindexConnect, vpindexToConnect){
-            ConnectTipZC(state, chainparams, pindexConnect, pindexConnect == pindexMostWork ? pblock : NULL);
-        }
-        BOOST_FOREACH(CBlockIndex * pindexConnect, vpindexToConnectZC){
-            ReArrangeZcoinMint(state, chainparams, pindexConnect, pindexConnect == pindexMostWork ? pblock : NULL);
-        }
     }
-
-
+    
+    
     if (fBlocksDisconnected) {
         mempool.removeForReorg(pcoinsTip, chainActive.Tip()->nHeight + 1, STANDARD_LOCKTIME_VERIFY_FLAGS);
         LimitMempoolSize(mempool, GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000,
                          GetArg("-mempoolexpiry", DEFAULT_MEMPOOL_EXPIRY) * 60 * 60);
     }
     mempool.check(pcoinsTip);
-
+    
     // Callbacks/notifications for a new best chain.
     if (fInvalidFound)
         CheckForkWarningConditionsOnNewFork(vpindexToConnect.back());
@@ -3790,16 +3202,16 @@ int getNHeight(const CBlockHeader &block) {
  */
 bool ActivateBestChain(CValidationState &state, const CChainParams &chainparams, const CBlock *pblock) {
     LogPrintf("ActivateBestChain()\n");
-//    if (pblock) {
-//        LogPrint("ActivateBestChain", "block=%s\n", pblock->ToString());
-//    }
+    //    if (pblock) {
+    //        LogPrint("ActivateBestChain", "block=%s\n", pblock->ToString());
+    //    }
     CBlockIndex *pindexMostWork = NULL;
     CBlockIndex *pindexNewTip = NULL;
     do {
         boost::this_thread::interruption_point();
         if (ShutdownRequested())
             break;
-
+        
         const CBlockIndex *pindexFork;
         bool fInitialDownload;
         int nNewHeight;
@@ -3809,18 +3221,18 @@ bool ActivateBestChain(CValidationState &state, const CChainParams &chainparams,
             if (pindexMostWork == NULL) {
                 pindexMostWork = FindMostWorkChain();
             }
-
+            
             // Whether we have anything to do at all.
             if (pindexMostWork == NULL || pindexMostWork == chainActive.Tip()) {
-                    return true;
+                return true;
             }
-
+            
             bool fInvalidFound = false;
             if (!ActivateBestChainStep(state, chainparams, pindexMostWork, pblock && pblock->GetHash() == pindexMostWork->GetBlockHash() ? pblock : NULL, fInvalidFound)) {
                 LogPrintf("ActivateBestChainStep --> Failed!\n");
                 return false;
             }
-
+            
             if (fInvalidFound) {
                 // Wipe cache, we may need another branch now.
                 pindexMostWork = NULL;
@@ -3831,12 +3243,12 @@ bool ActivateBestChain(CValidationState &state, const CChainParams &chainparams,
             nNewHeight = chainActive.Height();
         }
         // When we reach this point, we switched to a new tip (stored in pindexNewTip).
-
+        
         // Notifications/callbacks that can run without cs_main
         // Always notify the UI if a new block tip was connected
         if (pindexFork != pindexNewTip) {
             uiInterface.NotifyBlockTip(fInitialDownload, pindexNewTip);
-
+            
             if (!fInitialDownload) {
                 // Find the hashes of all blocks that weren't previously in the best chain.
                 std::vector <uint256> vHashes;
@@ -3857,7 +3269,7 @@ bool ActivateBestChain(CValidationState &state, const CChainParams &chainparams,
                     {
                         if (nNewHeight > (pnode->nStartingHeight != -1 ? pnode->nStartingHeight - 2000 : 0)) {
                             BOOST_REVERSE_FOREACH(
-                            const uint256 &hash, vHashes) {
+                                                  const uint256 &hash, vHashes) {
                                 pnode->PushBlockHash(hash);
                             }
                         }
@@ -3871,12 +3283,12 @@ bool ActivateBestChain(CValidationState &state, const CChainParams &chainparams,
         }
     } while (pindexNewTip != pindexMostWork);
     CheckBlockIndex(chainparams.GetConsensus());
-
+    
     // Write changes periodically to disk, after relay.
     if (!FlushStateToDisk(state, FLUSH_STATE_PERIODIC)) {
         return false;
     }
-
+    
     return true;
 }
 

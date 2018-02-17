@@ -37,21 +37,20 @@ public:
     uint32_t nTime;
     uint32_t nBits;
     uint32_t nNonce;
-
+    
     static const int CURRENT_VERSION = 2;
-
-    //btzc
-//    uint32_t lastHeight;
+    
+    // uint32_t lastHeight;
     uint256 powHash;
     int32_t isComputed;
-
+    
     CBlockHeader()
     {
         SetNull();
     }
-
+    
     ADD_SERIALIZE_METHODS;
-
+    
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(this->nVersion);
@@ -61,7 +60,7 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
     }
-
+    
     void SetNull()
     {
         nVersion = CBlockHeader::CURRENT_VERSION | (GetZerocoinChainID() * BLOCK_VERSION_CHAIN_START);
@@ -73,32 +72,32 @@ public:
         isComputed = -1;
         powHash.SetNull();
     }
-
+    
     int GetChainID() const
     {
         return nVersion / BLOCK_VERSION_CHAIN_START;
     }
-
+    
     bool IsNull() const
     {
         return (nBits == 0);
     }
-
+    
     bool IsComputed() const
     {
         return (isComputed <= 0);
     }
-
+    
     void SetPoWHash(uint256 hash) const
     {
-//        isComputed = 1;
-//        powHash = hash;
+        //        isComputed = 1;
+        //        powHash = hash;
     }
-
+    
     uint256 GetPoWHash(int nHeight) const;
-
+    
     uint256 GetHash() const;
-
+    
     int64_t GetBlockTime() const
     {
         return (int64_t)nTime;
@@ -106,41 +105,57 @@ public:
 };
 
 
+class CZerocoinTxInfo;
+
 class CBlock : public CBlockHeader
 {
 public:
     // network and disk
     std::vector<CTransaction> vtx;
-
+    
     // memory only
+    mutable CTxOut txoutZoinode; // znode payment
+    mutable std::vector<CTxOut> voutSuperblock; // superblock payment
     mutable bool fChecked;
-
+    
+    // memory only, zerocoin tx info
+    mutable CZerocoinTxInfo *zerocoinTxInfo;
+    
     CBlock()
     {
+        zerocoinTxInfo = NULL;
         SetNull();
     }
-
+    
     CBlock(const CBlockHeader &header)
     {
+        zerocoinTxInfo = NULL;
         SetNull();
         *((CBlockHeader*)this) = header;
     }
-
+    
+    ~CBlock() {
+        ZerocoinClean();
+    }
+    
     ADD_SERIALIZE_METHODS;
-
+    
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(*(CBlockHeader*)this);
         READWRITE(vtx);
     }
-
+    
     void SetNull()
     {
+        ZerocoinClean();
         CBlockHeader::SetNull();
         vtx.clear();
+        txoutZoinode = CTxOut();
+        voutSuperblock.clear();
         fChecked = false;
     }
-
+    
     CBlockHeader GetBlockHeader() const
     {
         CBlockHeader block;
@@ -152,8 +167,10 @@ public:
         block.nNonce         = nNonce;
         return block;
     }
-
+    
     std::string ToString() const;
+    
+    void ZerocoinClean() const;
 };
 
 /** Describes a place in the block chain to another node such that if the
@@ -163,28 +180,28 @@ public:
 struct CBlockLocator
 {
     std::vector<uint256> vHave;
-
+    
     CBlockLocator() {}
-
+    
     CBlockLocator(const std::vector<uint256>& vHaveIn)
     {
         vHave = vHaveIn;
     }
-
+    
     ADD_SERIALIZE_METHODS;
-
+    
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         if (!(nType & SER_GETHASH))
             READWRITE(nVersion);
         READWRITE(vHave);
     }
-
+    
     void SetNull()
     {
         vHave.clear();
     }
-
+    
     bool IsNull() const
     {
         return vHave.empty();
@@ -195,3 +212,4 @@ struct CBlockLocator
 int64_t GetBlockWeight(const CBlock& tx);
 
 #endif // BITCOIN_PRIMITIVES_BLOCK_H
+
