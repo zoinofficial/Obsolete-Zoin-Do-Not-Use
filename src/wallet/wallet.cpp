@@ -32,6 +32,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
+// number of mint confirmations needed to spend coin
+#define ZC_MINT_CONFIRMATIONS   6
+
 using namespace std;
 
 CWallet *pwalletMain = NULL;

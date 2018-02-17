@@ -340,30 +340,32 @@ libbitcoin_util_a_SOURCES = \
   utiltime.cpp \
   crypto/scrypt.cpp \
   primitives/block.cpp \
-  libzerocoin/bitcoin_bignum/allocators.h \
-  libzerocoin/bitcoin_bignum/bignum.h \
-  libzerocoin/bitcoin_bignum/compat.h \
-  libzerocoin/bitcoin_bignum/netbase.h \
-  libzerocoin/Accumulator.h \
-  libzerocoin/Accumulator.cpp \
-  libzerocoin/AccumulatorProofOfKnowledge.h \
-  libzerocoin/AccumulatorProofOfKnowledge.cpp \
-  libzerocoin/Coin.h \
-  libzerocoin/Coin.cpp \
-  libzerocoin/CoinSpend.h \
-  libzerocoin/CoinSpend.cpp \
-  libzerocoin/Commitment.h \
-  libzerocoin/Commitment.cpp \
-  libzerocoin/ParamGeneration.h \
-  libzerocoin/ParamGeneration.cpp \
-  libzerocoin/Params.h \
-  libzerocoin/Params.cpp \
-  libzerocoin/SerialNumberSignatureOfKnowledge.h \
-  libzerocoin/SerialNumberSignatureOfKnowledge.cpp \
-  libzerocoin/AccumulatorProofOfKnowledge.cpp \
-  libzerocoin/SpendMetaData.h \
-  libzerocoin/SpendMetaData.cpp \
-  libzerocoin/Zerocoin.h \
+libzerocoin/bitcoin_bignum/allocators.h \
+libzerocoin/bitcoin_bignum/bignum.h \
+libzerocoin/bitcoin_bignum/compat.h \
+libzerocoin/bitcoin_bignum/netbase.h \
+libzerocoin/Accumulator.h \
+libzerocoin/Accumulator.cpp \
+libzerocoin/AccumulatorProofOfKnowledge.h \
+libzerocoin/AccumulatorProofOfKnowledge.cpp \
+libzerocoin/Coin.h \
+libzerocoin/Coin.cpp \
+libzerocoin/CoinSpend.h \
+libzerocoin/CoinSpend.cpp \
+libzerocoin/Commitment.h \
+libzerocoin/Commitment.cpp \
+libzerocoin/ParallelTasks.h \
+libzerocoin/ParallelTasks.cpp \
+libzerocoin/ParamGeneration.h \
+libzerocoin/ParamGeneration.cpp \
+libzerocoin/Params.h \
+libzerocoin/Params.cpp \
+libzerocoin/SerialNumberSignatureOfKnowledge.h \
+libzerocoin/SerialNumberSignatureOfKnowledge.cpp \
+libzerocoin/AccumulatorProofOfKnowledge.cpp \
+libzerocoin/SpendMetaData.h \
+libzerocoin/SpendMetaData.cpp \
+libzerocoin/Zerocoin.h \
   $(BITCOIN_CORE_H)
 
 if GLIBC_BACK_COMPAT

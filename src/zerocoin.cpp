@@ -287,23 +287,6 @@ bool CheckDevFundInputs(const CTransaction &tx, CValidationState &state, int nHe
         }
 
     }
-    /* Check for Zoinode payment in block */
-    if(nHeight >= Params().GetConsensus().nZoinodePaymentsStartBlock){
-
-        int total_payment_tx = 0;
-        CAmount zoinodePayment = GetZoinodePayment(nHeight, 0);
-
-        BOOST_FOREACH(const CTxOut &output, tx.vout) {
-            if (zoinodePayment == output.nValue) {
-                total_payment_tx = total_payment_tx + 1;
-            }
-        }
-        // no more than 1 output for payment
-        if (total_payment_tx > 1) {
-            return state.DoS(100, false, REJECT_INVALID_ZOINODE_PAYMENT,
-                             "CTransaction::CheckTransaction() : invalid zoinode payment");
-        }
-    }
 	return true;
 }
 
