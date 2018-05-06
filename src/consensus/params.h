@@ -65,18 +65,18 @@ struct Params {
     unsigned char nMaxNFactor;
     
     int nInstantSendKeepLock; // in blocks
-    int nBudgetPaymentsStartBlock;
-    int nBudgetPaymentsCycleBlocks;
-    int nBudgetPaymentsWindowBlocks;
+    //int nBudgetPaymentsStartBlock;
+    //int nBudgetPaymentsCycleBlocks;
+    //int nBudgetPaymentsWindowBlocks;
     int nZoinodeMinimumConfirmations;
     int nZoinodePaymentsStartBlock;
-    int nZoinodePaymentsIncreaseBlock;
-    int nZoinodePaymentsIncreasePeriod; // in blocks
-    int nSuperblockStartBlock;
+    //int nZoinodePaymentsIncreaseBlock;
+    //int nZoinodePaymentsIncreasePeriod; // in blocks
+    //int nSuperblockStartBlock;
 
     
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
-    uint256 nMinimumChainWorka;
+    uint256 nMinimumChainWork;
 };
 } // namespace Consensus
 

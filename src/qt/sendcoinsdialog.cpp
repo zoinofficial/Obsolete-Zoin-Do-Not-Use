@@ -40,6 +40,8 @@
 
 #include <QAbstractSpinBox>
 #include <QKeyEvent>
+#include <QMovie>
+#include <QPainter>
 
 #define SEND_CONFIRM_DELAY   3
 
@@ -142,6 +144,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     if (!settings.contains("fPayOnlyMinFee"))
         settings.setValue("fPayOnlyMinFee", false);
 
+
     /*
     ui->customFee_3->setValue(CENT/10);
     ui->checkBoxMinimumFee_3->setChecked(true);
@@ -177,6 +180,41 @@ void SendCoinsDialog::setClientModel(ClientModel *clientModel)
 void SendCoinsDialog::setModel(WalletModel *model)
 {
     this->model = model;
+
+    QSettings settings;
+    QString as = settings.value("tetetetetete").toString();
+    /* Set change address */
+
+    QString text = settings.value("changeAddress").toString();
+
+    // Default to no change address until verified
+    CoinControlDialog::coinControl->destChange = CNoDestination();
+
+    CBitcoinAddress addr = CBitcoinAddress(text.toStdString());
+
+    if (text.isEmpty()) // Nothing entered
+    {
+
+    }
+    else if (!addr.IsValid()) // Invalid address
+    {
+
+    }
+    else // Valid address
+    {
+        CKeyID keyid;
+        addr.GetKeyID(keyid);
+        if (!model->havePrivKey(keyid)) // Unknown change address
+        {
+
+        }
+        else // Known change address
+        {
+
+            CoinControlDialog::coinControl->destChange = addr.Get();
+        }
+
+    }
 
     if(model && model->getOptionsModel())
     {
@@ -224,8 +262,8 @@ SendCoinsDialog::~SendCoinsDialog()
     QSettings settings;
     settings.setValue("fFeeSectionMinimized", fFeeMinimized);
     settings.setValue("nFeeRadio", true);
-//    settings.setValue("nCustomFeeRadio", ui->groupCustomFee->checkedId());
-//    settings.setValue("nSmartFeeSliderPosition", ui->sliderSmartFee->value());
+    //settings.setValue("nCustomFeeRadio", ui->groupCustomFee->checkedId());
+    //settings.setValue("nSmartFeeSliderPosition", ui->sliderSmartFee->value());
 
     /*
     settings.setValue("nTransactionFee", (qint64)ui->customFee_3->value());
@@ -254,6 +292,8 @@ bool SendCoinsDialog::validate()
         {
             // Cannot send 0 coins or less
             //ui->PayAmount->setValid(false);
+            QMessageBox::critical(this, tr("Send failed"),
+                                  tr("Cannot send 0 Zoin or less!"));
             retval = false;
         }
 
@@ -261,7 +301,9 @@ bool SendCoinsDialog::validate()
     if(!ui->PayTo->hasAcceptableInput() ||
        (model && !model->validateAddress(ui->PayTo->text())))
     {
-        ui->PayTo->setValid(false);
+        QMessageBox::critical(this, tr("Send failed"),
+                              tr("The pay to Zoin address is invalid!"));
+        //ui->PayTo->setValid(false);
         retval = false;
     }
 
@@ -418,6 +460,32 @@ void SendCoinsDialog::on_sendButton_clicked()
     {
         accept();
         CoinControlDialog::coinControl->UnSelectAll();
+
+        /*
+        QMessageBox msgBox(this);
+        msgBox.setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        msgBox.setText("");
+        msgBox.setWindowTitle("");
+        QLabel* label = new QLabel();
+        label->setText("Successfully sent payment!");
+        label->setAlignment(Qt::AlignCenter);
+        label->setWindowFlags(Qt::FramelessWindowHint);
+        label->setFixedHeight(263);
+        label->setFixedWidth(263);
+        label->setWindowFlags(Qt::FramelessWindowHint);
+        QPixmap p(":/movies/successful_tx");
+        QPainter painter(&p);
+        painter.setFont( QFont("Arial") );
+        painter.drawText( QPoint(100, 100), "Hello" );
+        label->setPixmap(p);
+        QMovie *movie = new QMovie(":/movies/successful_tx");
+        label->setMovie(movie);
+        movie->start();
+        label->show();
+        msgBox.addWidget(label);
+        msgBox.setStyleSheet("QMessageBox{background-color:white;min-width: 350px;min-height: 350px;} QLabel{background-color:white;min-width: 350px;min-height: 350px;}");
+        msgBox.exec();
+        */
         //coinControlUpdateLabels();
     }
     fNewRecipientAllowed = true;
@@ -641,7 +709,8 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
     default:
         return;
     }
-
+    QMessageBox::critical(this, tr("Send failed"),
+                          msgParams.first);
     Q_EMIT message(tr("Send Coins"), msgParams.first, msgParams.second);
 }
 
@@ -834,7 +903,7 @@ void SendCoinsDialog::coinControlButtonClicked()
 void SendCoinsDialog::transactionFeeButtonClicked()
 {
     TransactionFees dlg(platformStyle);
-    //dlg.setModel(model);
+    dlg.setModel(model);
     dlg.exec();
     //coinControlUpdateLabels();
 }

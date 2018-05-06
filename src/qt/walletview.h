@@ -6,6 +6,8 @@
 #define BITCOIN_QT_WALLETVIEW_H
 
 #include "amount.h"
+#include "zoinodes.h"
+#include "votingpage.h"
 #include <QStackedWidget>
 #include <QProgressBar>
 #include <QMenuBar>
@@ -32,6 +34,9 @@ class QModelIndex;
 class QProgressDialog;
 QT_END_NAMESPACE
 
+
+
+static int currentCurrency;
 /*
   WalletView class. This class represents the view to a single wallet.
   It was added to support multiple wallet functionality. Each wallet gets its own WalletView instance.
@@ -46,6 +51,8 @@ class WalletView : public QStackedWidget
 public:
     explicit WalletView(const PlatformStyle *platformStyle, QWidget *parent);
     ~WalletView();
+
+
 
     void setBitcoinGUI(BitcoinGUI *gui);
     /** Set the client model.
@@ -75,6 +82,9 @@ private:
     ReceiveCoinsDialog *receiveCoinsPage;
     AddressBookPage *addressBookPage;
     SendCoinsDialog *sendCoinsPage;
+    Zoinodes *zoinodePage;
+    VotingPage *votingPage;
+
     //AddressBookPage *usedSendingAddressesPage;
     //AddressBookPage *usedReceivingAddressesPage;
     ZerocoinPage *zerocoinPage;
@@ -92,6 +102,7 @@ private:
     BitcoinGUI *gui;
 
 public Q_SLOTS:
+    void gotoZoinodePage();
     /** Switch to community (social) page */
     void gotoCommunityPage();
     /** Switch to learn more page */
@@ -101,7 +112,6 @@ public Q_SLOTS:
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
     /** Switch to receive coins page */
-
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "", QString name = "");
@@ -113,6 +123,7 @@ public Q_SLOTS:
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
+    void gotoVotingPage();
     /** Show incoming transaction notification for new transactions.
 
         The new items are those between start and end inclusive, under the given parent item.

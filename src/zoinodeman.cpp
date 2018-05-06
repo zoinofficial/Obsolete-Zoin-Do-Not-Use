@@ -11,6 +11,7 @@
 #include "zoinodeman.h"
 #include "netfulfilledman.h"
 #include "util.h"
+//#include "random.h"
 
 /** Zoinode manager */
 CZoinodeMan mnodeman;
@@ -645,6 +646,7 @@ CZoinode* CZoinodeMan::GetNextZoinodeInQueueForPayment(int nBlockHeight, bool fF
         if (reasonStr != NULL) {
             LogPrint("zoinodeman", "Zoinode, %s, addr(%s), qualify %s\n",
                      mn.vin.prevout.ToStringShort(), CBitcoinAddress(mn.pubKeyCollateralAddress.GetID()).ToString(), reasonStr);
+            delete [] reasonStr;
             continue;
         }
         vecZoinodeLastPaid.push_back(std::make_pair(mn.GetLastPaidBlock(), &mn));

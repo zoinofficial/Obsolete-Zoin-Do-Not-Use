@@ -132,10 +132,6 @@ void BlockAssembler::resetBlock()
     blockFinished = false;
 }
 
-static const int DevRewardStartBlock = 230250;
-//static const int DevRewardStartBlock = 5;
-static const int DevRewardStopBlock = 255250;
-
 CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
 {
     // Create new block
@@ -171,16 +167,14 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
             
         }
         else {
-            FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress("TKYGYopG5eHYc9FwDUoZKcVHrVENtNogEF").Get());
-            FOUNDER_2_SCRIPT = GetScriptForDestination(CBitcoinAddress("THpDyU1T8iVNiz1Gzfnhvrojc7xjAKvjUS").Get());
+            FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress("TDdVuT1t2CG4JreqDurns5u57vaHywfhHZ").Get());
+            FOUNDER_2_SCRIPT = GetScriptForDestination(CBitcoinAddress("TJR4R4E1RUBkafv5KPMuspiD7Zz9Esk2qK").Get());
         }
         
         // And give it to the founders
         txNew.vout.push_back(CTxOut(22.5 * COIN, CScript(FOUNDER_1_SCRIPT.begin(), FOUNDER_1_SCRIPT.end())));
         txNew.vout.push_back(CTxOut(15 * COIN, CScript(FOUNDER_2_SCRIPT.begin(), FOUNDER_2_SCRIPT.end())));
     }
-
-
 
     // Add dummy coinbase tx as first transaction
     pblock->vtx.push_back(CTransaction());
