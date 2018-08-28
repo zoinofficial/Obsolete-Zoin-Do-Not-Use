@@ -117,19 +117,19 @@ public:
         // is sorted by binary address, not by base58() address.
         qSort(cachedAddressTable.begin(), cachedAddressTable.end(), AddressTableEntryLessThan());
     }
-    
+
     void updateEntry(const QString &address, const QString &label, bool isMine, const QString &purpose, int status)
     {
         // Find address / label in model
         QList<AddressTableEntry>::iterator lower = qLowerBound(
-                                                               cachedAddressTable.begin(), cachedAddressTable.end(), address, AddressTableEntryLessThan());
+            cachedAddressTable.begin(), cachedAddressTable.end(), address, AddressTableEntryLessThan());
         QList<AddressTableEntry>::iterator upper = qUpperBound(
-                                                               cachedAddressTable.begin(), cachedAddressTable.end(), address, AddressTableEntryLessThan());
+            cachedAddressTable.begin(), cachedAddressTable.end(), address, AddressTableEntryLessThan());
         int lowerIndex = (lower - cachedAddressTable.begin());
         int upperIndex = (upper - cachedAddressTable.begin());
         bool inModel = (lower != upper);
         AddressTableEntry::Type newEntryType = translateTransactionType(purpose, isMine);
-        
+
         switch(status)
         {
             case CT_NEW:
@@ -169,13 +169,13 @@ public:
     {
         // Find address / label in model
         QList<AddressTableEntry>::iterator lower = qLowerBound(
-                                                               cachedAddressTable.begin(), cachedAddressTable.end(), pubCoin, AddressTableEntryLessThan());
+                cachedAddressTable.begin(), cachedAddressTable.end(), pubCoin, AddressTableEntryLessThan());
         QList<AddressTableEntry>::iterator upper = qUpperBound(
-                                                               cachedAddressTable.begin(), cachedAddressTable.end(), pubCoin, AddressTableEntryLessThan());
+                cachedAddressTable.begin(), cachedAddressTable.end(), pubCoin, AddressTableEntryLessThan());
         int lowerIndex = (lower - cachedAddressTable.begin());
         bool inModel = (lower != upper);
         AddressTableEntry::Type newEntryType = AddressTableEntry::Zerocoin;
-        
+
         switch(status)
         {
             case CT_NEW:
@@ -198,14 +198,14 @@ public:
                 parent->emitDataChanged(lowerIndex);
                 break;
         }
-        
+
     }
-    
+
     int size()
     {
         return cachedAddressTable.size();
     }
-    
+
     AddressTableEntry *index(int idx)
     {
         if(idx >= 0 && idx < cachedAddressTable.size())
@@ -222,7 +222,7 @@ public:
 AddressTableModel::AddressTableModel(CWallet *wallet, WalletModel *parent) :
 QAbstractTableModel(parent),walletModel(parent),wallet(wallet),priv(0)
 {
-    columns << tr("    Label") << tr("    Address");
+    columns << tr("Label") << tr("Address");
     priv = new AddressTablePriv(wallet, this);
     priv->refreshAddressTable();
 }
@@ -248,24 +248,24 @@ QVariant AddressTableModel::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid())
         return QVariant();
-    
+
     AddressTableEntry *rec = static_cast<AddressTableEntry*>(index.internalPointer());
-    
+
     if(role == Qt::DisplayRole || role == Qt::EditRole)
     {
         switch(index.column())
         {
-            case Label:
-                if(rec->label.isEmpty() && role == Qt::DisplayRole)
-                {
-                    return tr("   (no label)");
-                }
-                else
-                {
-                    return tr("   ") + rec->label;
-                }
-            case Address:
-                return tr("   ") + rec->address;
+        case Label:
+            if(rec->label.isEmpty() && role == Qt::DisplayRole)
+            {
+                return tr("(no label)");
+            }
+            else
+            {
+                return rec->label;
+            }
+        case Address:
+            return rec->address;
         }
     }
     else if (role == Qt::FontRole)
@@ -281,13 +281,13 @@ QVariant AddressTableModel::data(const QModelIndex &index, int role) const
     {
         switch(rec->type)
         {
-            case AddressTableEntry::Sending:
-                return tr("   ") + Send;
-            case AddressTableEntry::Receiving:
-                return tr("   ") + Receive;
-            case AddressTableEntry::Zerocoin:
-                return tr("   ") + Zerocoin;
-            default: break;
+        case AddressTableEntry::Sending:
+            return Send;
+        case AddressTableEntry::Receiving:
+            return Receive;
+        case AddressTableEntry::Zerocoin:
+            return Zerocoin;
+        default: break;
         }
     }
     return QVariant();
@@ -300,7 +300,7 @@ bool AddressTableModel::setData(const QModelIndex &index, const QVariant &value,
     AddressTableEntry *rec = static_cast<AddressTableEntry*>(index.internalPointer());
     std::string strPurpose = (rec->type == AddressTableEntry::Sending ? "send" : "receive");
     editStatus = OK;
-    
+
     if(role == Qt::EditRole)
     {
         LOCK(wallet->cs_wallet); /* For SetAddressBook / DelAddressBook */
@@ -366,12 +366,12 @@ Qt::ItemFlags AddressTableModel::flags(const QModelIndex &index) const
     if(!index.isValid())
         return 0;
     AddressTableEntry *rec = static_cast<AddressTableEntry*>(index.internalPointer());
-    
+
     Qt::ItemFlags retval = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     // Can edit address and label for sending addresses,
     // and only label for receiving addresses.
     if(rec->type == AddressTableEntry::Sending ||
-       (rec->type == AddressTableEntry::Receiving && index.column()==Label))
+      (rec->type == AddressTableEntry::Receiving && index.column()==Label))
     {
         retval |= Qt::ItemIsEditable;
     }
@@ -393,7 +393,7 @@ QModelIndex AddressTableModel::index(int row, int column, const QModelIndex &par
 }
 
 void AddressTableModel::updateEntry(const QString &address,
-                                    const QString &label, bool isMine, const QString &purpose, int status)
+        const QString &label, bool isMine, const QString &purpose, int status)
 {
     // Update address book model from Bitcoin core
     priv->updateEntry(address, label, isMine, purpose, status);
@@ -409,9 +409,9 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
 {
     std::string strLabel = label.toStdString();
     std::string strAddress = address.toStdString();
-    
+
     editStatus = OK;
-    
+
     if(type == Send)
     {
         if(!walletModel->validateAddress(address))
@@ -454,7 +454,7 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
     {
         return QString();
     }
-    
+
     // Add entry
     {
         LOCK(wallet->cs_wallet);
