@@ -43,7 +43,7 @@ CommunityPage::~CommunityPage()
 
 
 void CommunityPage::OpenWebsite(){
-    QString website = "http://www.zoinofficial.com/";
+    QString website = "http://www.zoinofficial.io/";
     QDesktopServices::openUrl(QUrl(website));
 }
 void CommunityPage::OpenReddit(){
@@ -55,23 +55,23 @@ void CommunityPage::OpenBTCTalk(){
     QDesktopServices::openUrl(QUrl(btc));
 }
 void CommunityPage::OpenTwitter(){
-    QString twitter = "https://twitter.com/zoinofficial";
+    QString twitter = "https://twitter.com/ZOIN_OFFICIAL";
     QDesktopServices::openUrl(QUrl(twitter));
 }
 void CommunityPage::OpenSlack(){
-    QString slack = "https://discord.gg/mE3KemF";
+    QString slack = "https://discord.gg/invite/zJcquY3";
     QDesktopServices::openUrl(QUrl(slack));
 }
 void CommunityPage::OpenFacebook(){
-    QString fb = "https://www.facebook.com/officialzoin";
+    QString fb = "https://www.facebook.com/zoinofficial.io";
     QDesktopServices::openUrl(QUrl(fb));
 }
 void CommunityPage::OpenSlackInv(){
-    QString slackInv = "https://t.me/zoinofficial";
+    QString slackInv = "https://t.me/joinchat/HVS2bRF8czqUD2saSVtknQ";
     QDesktopServices::openUrl(QUrl(slackInv));
 }
 void CommunityPage::OpenGit(){
-    QString git = "https://github.com/zoinofficial/zoin";
+    QString git = "https://github.com/zoinofficial";
     QDesktopServices::openUrl(QUrl(git));
 }
 
