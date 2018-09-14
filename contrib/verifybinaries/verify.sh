@@ -1,5 +1,6 @@
 #!/bin/bash
 # Copyright (c) 2016 The Bitcoin Core developers
+# Copyright (c) 2016 The Zoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,13 +18,13 @@ function clean_up {
    done
 }
 
-WORKINGDIR="/tmp/zcoin"
+WORKINGDIR="/tmp/zoin"
 TMPFILE="hashes.tmp"
 
 SIGNATUREFILENAME="SHA256SUMS.asc"
 RCSUBDIR="test/"
 BASEDIR="https://bitcoin.org/bin/"
-VERSIONPREFIX="zcoin-core-"
+VERSIONPREFIX="zoin"
 RCVERSIONSTRING="rc"
 
 if [ ! -d "$WORKINGDIR" ]; then
