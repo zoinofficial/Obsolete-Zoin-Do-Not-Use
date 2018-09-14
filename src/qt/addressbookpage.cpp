@@ -47,12 +47,12 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, QWidget *pa
     switch (tab) {
         case SendingTab:
             ui->labelExplanation->setText(
-                    tr("These are your Zcoin addresses for sending payments. Always check the amount and the receiving address before sending coins."));
+                    tr("These are your Zoin addresses for sending payments. Always check the amount and the receiving address before sending coins."));
             ui->deleteAddress->setVisible(true);
             break;
         case ReceivingTab:
             ui->labelExplanation->setText(
-                    tr("These are your Zcoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction."));
+                    tr("These are your Zoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction."));
             ui->deleteAddress->setVisible(false);
             break;
     }*/
