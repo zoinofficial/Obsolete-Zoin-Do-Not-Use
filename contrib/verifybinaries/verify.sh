@@ -23,7 +23,7 @@ TMPFILE="hashes.tmp"
 
 SIGNATUREFILENAME="SHA256SUMS.asc"
 RCSUBDIR="test/"
-BASEDIR="https://bitcoin.org/bin/"
+BASEDIR="https://zoinofficial.io/bin/"
 VERSIONPREFIX="zoin"
 RCVERSIONSTRING="rc"
 
@@ -84,7 +84,7 @@ if [ $RET -ne 0 ]; then
       echo "Bad signature."
    elif [ $RET -eq 2 ]; then
       #or if a gpg error has occurred
-      echo "gpg error. Do you have the Bitcoin Core binary release signing key installed?"
+      echo "gpg error. Do you have the Zoin Core binary release signing key installed?"
    fi
 
    echo "gpg output:"
