@@ -180,7 +180,16 @@ public:
                uint256S("0x23911212a525e3d149fcad6c559c8b17f1e8326a272a75ff9bb315c8d96433ef"));
         assert(genesis.hashMerkleRoot ==
                uint256S("0x4f193d83c304ebd3bf2319611cbb84f26af7960f23d06dd243b6c93ebf4d7797"));
-        vSeeds.push_back(CDNSSeedData("159.203.124.51", "159.203.124.51", false));
+        vSeeds.push_back(CDNSSeedData("asia.zoinofficial.io", "asia.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("amsterdam.zoinofficial.io", "amsterdam.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("australia.zoinofficial.io", "australia.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("chicago.zoinofficial.io", "chicago.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("london.zoinofficial.io", "london.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("frankfurt.zoinofficial.io", "frankfurt.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("newjersey.zoinofficial.io", "newjersey.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("sanfrancisco.zoinofficial.io", "sanfrancisco.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("tokyo.zoinofficial.io", "tokyo.zoinofficial.io", false));
+
         // Note that of those with the service bits flag, most only support a subset of possible options
         base58Prefixes[PUBKEY_ADDRESS] = std::vector < unsigned char > (1, 80);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector < unsigned char > (1, 7);
@@ -318,14 +327,21 @@ public:
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
         // zoin test seeds
-        vSeeds.push_back(CDNSSeedData("165.227.98.85", "165.227.98.85", false));
-        vSeeds.push_back(CDNSSeedData("174.138.61.220", "174.138.61.220", false));
+        vSeeds.push_back(CDNSSeedData("asia.zoinofficial.io", "asia.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("amsterdam.zoinofficial.io", "amsterdam.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("australia.zoinofficial.io", "australia.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("chicago.zoinofficial.io", "chicago.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("london.zoinofficial.io", "london.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("frankfurt.zoinofficial.io", "frankfurt.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("newjersey.zoinofficial.io", "newjersey.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("sanfrancisco.zoinofficial.io", "sanfrancisco.zoinofficial.io", false));
+        vSeeds.push_back(CDNSSeedData("tokyo.zoinofficial.io", "tokyo.zoinofficial.io", false));
 
 
-        //vSeeds.push_back(CDNSSeedData("92.247.116.44", "92.247.116.44", true));
-//        vSeeds.push_back(CDNSSeedData("petertodd.org", "seed.tbtc.petertodd.org", true));
-//        vSeeds.push_back(CDNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
-//        vSeeds.push_back(CDNSSeedData("bitcoin.schildbach.de", "testnet-seed.bitcoin.schildbach.de"));
+//      vSeeds.push_back(CDNSSeedData("92.247.116.44", "92.247.116.44", true));
+//      vSeeds.push_back(CDNSSeedData("petertodd.org", "seed.tbtc.petertodd.org", true));
+//      vSeeds.push_back(CDNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
+//      vSeeds.push_back(CDNSSeedData("bitcoin.schildbach.de", "testnet-seed.bitcoin.schildbach.de"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector < unsigned char > (1, 65);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector < unsigned char > (1, 178);
