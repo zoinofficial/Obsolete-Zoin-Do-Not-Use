@@ -12,6 +12,8 @@ Zoin is the implementation of the Zerocoin protocol ( http://zerocoin.org ) guar
  - 12.5 coins per block as subsidy(currently @12.5/block) POW 35% Mining / POS 65% Masternodes
  - Subsidy halves every 210,000 blocks (approximately 12 months)
 
+Note: Do Not Use Tor if your wallet is not fully synchronized, it takes much longer to synchronize with blockchain.
+ 
 For more information, as well as an immediately useable, binary version of
 the zoin client sofware, see https://github.com/zoinofficial/zoin/releases.
 
