@@ -24,13 +24,12 @@ URL:		https://bitcoin.org/
 Source0:	https://bitcoin.org/bin/bitcoin-core-%{version}/bitcoin-%{version}.tar.gz
 Source1:	http://download.oracle.com/berkeley-db/db-%{bdbv}.NC.tar.gz
 
-Source10:	https://raw.githubusercontent.com/bitcoin/bitcoin/v%{version}/contrib/debian/examples/bitcoin.conf
+Source10:	https://raw.githubusercontent.com/zoinofficial/Zoin/master/contrib/debian/examples/zoin.conf
 
 #man pages
-Source20:	https://raw.githubusercontent.com/bitcoin/bitcoin/v%{version}/contrib/debian/manpages/bitcoind.1
-Source21:	https://raw.githubusercontent.com/bitcoin/bitcoin/v%{version}/contrib/debian/manpages/bitcoin-cli.1
-Source22:	https://raw.githubusercontent.com/bitcoin/bitcoin/v%{version}/contrib/debian/manpages/bitcoin-qt.1
-Source23:	https://raw.githubusercontent.com/bitcoin/bitcoin/v%{version}/contrib/debian/manpages/bitcoin.conf.5
+Source20:	https://raw.githubusercontent.com/bitcoin/bitcoin/v%{version}/doc/man/bitcoind.1
+Source21:	https://raw.githubusercontent.com/bitcoin/bitcoin/v%{version}/doc/man/bitcoin-cli.1
+Source22:	https://raw.githubusercontent.com/bitcoin/bitcoin/v%{version}/doc/man/bitcoin-qt.1
 
 #selinux
 Source30:	https://raw.githubusercontent.com/bitcoin/bitcoin/v%{version}/contrib/rpm/bitcoin.te
@@ -152,7 +151,7 @@ This package contains utilities needed by the bitcoin-server package.
 %prep
 %setup -q
 %patch0 -p1 -b .libressl
-cp -p %{SOURCE10} ./bitcoin.conf.example
+cp -p %{SOURCE10} ./zoin.conf.example
 tar -zxf %{SOURCE1}
 cp -p db-%{bdbv}.NC/LICENSE ./db-%{bdbv}.NC-LICENSE
 mkdir db4 SELinux
@@ -187,10 +186,10 @@ mv %{buildroot}%{_bindir}/bitcoind %{buildroot}%{_sbindir}/bitcoind
 
 # systemd stuff
 mkdir -p %{buildroot}%{_tmpfilesdir}
-cat <<EOF > %{buildroot}%{_tmpfilesdir}/bitcoin.conf
+cat <<EOF > %{buildroot}%{_tmpfilesdir}/zoin.conf
 d /run/bitcoind 0750 bitcoin bitcoin -
 EOF
-touch -a -m -t 201504280000 %{buildroot}%{_tmpfilesdir}/bitcoin.conf
+touch -a -m -t 201504280000 %{buildroot}%{_tmpfilesdir}/zoin.conf
 
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 cat <<EOF > %{buildroot}%{_sysconfdir}/sysconfig/bitcoin
@@ -201,9 +200,9 @@ OPTIONS=""
 
 # System service defaults.
 # Don't change these unless you know what you're doing.
-CONFIG_FILE="%{_sysconfdir}/bitcoin/bitcoin.conf"
+CONFIG_FILE="%{_sysconfdir}/bitcoin/zoin.conf"
 DATA_DIR="%{_localstatedir}/lib/bitcoin"
-PID_FILE="/run/bitcoind/bitcoind.pid"
+PID_FILE="/run/bitcoind/zoind.pid"
 EOF
 touch -a -m -t 201504280000 %{buildroot}%{_sysconfdir}/sysconfig/bitcoin
 
@@ -306,17 +305,15 @@ install -p %{SOURCE21} %{buildroot}%{_mandir}/man1/bitcoin-cli.1
 %if %{_buildqt}
 install -p %{SOURCE22} %{buildroot}%{_mandir}/man1/bitcoin-qt.1
 %endif
-install -D -p %{SOURCE23} %{buildroot}%{_mandir}/man5/bitcoin.conf.5
+// install -D -p %{SOURCE23} %{buildroot}%{_mandir}/man5/bitcoin.conf.5
 
 # nuke these, we do extensive testing of binaries in %%check before packaging
 rm -f %{buildroot}%{_bindir}/test_*
 
 %check
 make check
-pushd src
-srcdir=. test/bitcoin-util-test.py
-popd
-qa/pull-tester/rpc-tests.py -extended
+srcdir=src test/bitcoin-util-test.py
+test/functional/test_runner.py --extended
 
 %post libs -p /sbin/ldconfig
 
@@ -375,7 +372,7 @@ rm -rf %{buildroot}
 %files core
 %defattr(-,root,root,-)
 %license COPYING db-%{bdbv}.NC-LICENSE
-%doc COPYING bitcoin.conf.example doc/README.md doc/bips.md doc/files.md doc/multiwallet-qt.md doc/reduce-traffic.md doc/release-notes.md doc/tor.md
+%doc COPYING zoin.conf.example doc/README.md doc/bips.md doc/files.md doc/multiwallet-qt.md doc/reduce-traffic.md doc/release-notes.md doc/tor.md
 %attr(0755,root,root) %{_bindir}/bitcoin-qt
 %attr(0644,root,root) %{_datadir}/applications/bitcoin-core.desktop
 %attr(0644,root,root) %{_datadir}/kde4/services/bitcoin-core.protocol
@@ -406,26 +403,24 @@ rm -rf %{buildroot}
 %files server
 %defattr(-,root,root,-)
 %license COPYING db-%{bdbv}.NC-LICENSE
-%doc COPYING bitcoin.conf.example doc/README.md doc/REST-interface.md doc/bips.md doc/dnsseed-policy.md doc/files.md doc/reduce-traffic.md doc/release-notes.md doc/tor.md
+%doc COPYING zoin.conf.example doc/README.md doc/REST-interface.md doc/bips.md doc/dnsseed-policy.md doc/files.md doc/reduce-traffic.md doc/release-notes.md doc/tor.md
 %attr(0755,root,root) %{_sbindir}/bitcoind
-%attr(0644,root,root) %{_tmpfilesdir}/bitcoin.conf
+%attr(0644,root,root) %{_tmpfilesdir}/zoin.conf
 %attr(0644,root,root) %{_unitdir}/bitcoin.service
 %dir %attr(0750,bitcoin,bitcoin) %{_sysconfdir}/bitcoin
 %dir %attr(0750,bitcoin,bitcoin) %{_localstatedir}/lib/bitcoin
 %config(noreplace) %attr(0600,root,root) %{_sysconfdir}/sysconfig/bitcoin
 %attr(0644,root,root) %{_datadir}/selinux/*/*.pp
 %attr(0644,root,root) %{_mandir}/man1/bitcoind.1*
-%attr(0644,root,root) %{_mandir}/man5/bitcoin.conf.5*
 
 %files utils
 %defattr(-,root,root,-)
 %license COPYING
-%doc COPYING bitcoin.conf.example doc/README.md
+%doc COPYING zoin.conf.example doc/README.md
 %attr(0755,root,root) %{_bindir}/bitcoin-cli
 %attr(0755,root,root) %{_bindir}/bitcoin-tx
 %attr(0755,root,root) %{_bindir}/bench_bitcoin
 %attr(0644,root,root) %{_mandir}/man1/bitcoin-cli.1*
-%attr(0644,root,root) %{_mandir}/man5/bitcoin.conf.5*
 
 
 
