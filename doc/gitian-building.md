@@ -1,5 +1,6 @@
 Gitian building
 ================
+Zoin Core developers 2018 dedicated to my Catter  :smiley_cat: 
 
 *Setup instructions for a Gitian build of Zoin Core using a Debian VM or physical system.*
 
@@ -26,7 +27,7 @@ Table of Contents
 - [Installing Gitian](#installing-gitian)
 - [Setting up the Gitian image](#setting-up-the-gitian-image)
 - [Getting and building the inputs](#getting-and-building-the-inputs)
-- [Building Zoin Core](#building-bitcoin-core)
+- [Building Zoin Core](#building-Zoin-core)
 - [Building an alternative repository](#building-an-alternative-repository)
 - [Signing externally](#signing-externally)
 - [Uploading signatures](#uploading-signatures)
@@ -310,7 +311,7 @@ Clone the git repositories for bitcoin and Gitian.
 ```bash
 git clone https://github.com/devrandom/gitian-builder.git
 git clone https://github.com/zoinofficial/zoin
-git clone https://github.com/bitcoin-core/gitian.sigs.git
+git clone https://github.com/zoinofficial/gitian.sigs.git
 ```
 
 Setting up the Gitian image
@@ -391,11 +392,11 @@ and inputs.
 
 For example:
 ```bash
-URL=https://github.com/snguyen-vn/zoin.git
+URL=https://github.com/zoinofficial/zoin.git
 COMMIT=2014_03_windows_unicode_path
-./bin/gbuild --commit zoin=${COMMIT} --url bitcoin=${URL} ../bitcoin/contrib/gitian-descriptors/gitian-linux.yml
-./bin/gbuild --commit zoin=${COMMIT} --url bitcoin=${URL} ../bitcoin/contrib/gitian-descriptors/gitian-win.yml
-./bin/gbuild --commit zoin=${COMMIT} --url bitcoin=${URL} ../bitcoin/contrib/gitian-descriptors/gitian-osx.yml
+./bin/gbuild --commit zoin=${COMMIT} --url zoin=${URL} ../Zoin/contrib/gitian-descriptors/gitian-linux.yml
+./bin/gbuild --commit zoin=${COMMIT} --url zoin=${URL} ../Zoin/contrib/gitian-descriptors/gitian-win.yml
+./bin/gbuild --commit zoin=${COMMIT} --url zoin=${URL} ../Zoin/contrib/gitian-descriptors/gitian-osx.yml
 ```
 
 Building fully offline
@@ -441,12 +442,12 @@ Then when building, override the remote URLs that gbuild would otherwise pull fr
 ```bash
 
 cd /some/root/path/
-git clone https://github.com/bitcoin-core/bitcoin-detached-sigs.git
+git clone https://github.com/zoinofficial/zoin-detached-sigs.git
 
-BTCPATH=/some/root/path/bitcoin
-SIGPATH=/some/root/path/bitcoin-detached-sigs
+BTCPATH=/some/root/path/Zoin
+SIGPATH=/some/root/path/zoin-detached-sigs
 
-./bin/gbuild --url bitcoin=${BTCPATH},signature=${SIGPATH} ../bitcoin/contrib/gitian-descriptors/gitian-win-signer.yml
+./bin/gbuild --url bitcoin=${BTCPATH},signature=${SIGPATH} ../Zoin/contrib/gitian-descriptors/gitian-win-signer.yml
 ```
 
 Signing externally
@@ -455,15 +456,15 @@ Signing externally
 If you want to do the PGP signing on another device, that's also possible; just define `SIGNER` as mentioned
 and follow the steps in the build process as normal.
 
-    gpg: skipped "snguyen-vn": secret key not available
+    gpg: skipped "ZhaoKwok": secret key not available
 
 When you execute `gsign` you will get an error from GPG, which can be ignored. Copy the resulting `.assert` files
 in `gitian.sigs` to your signing machine and do
 
 ```bash
-    gpg --detach-sign ${VERSION}-linux/${SIGNER}/bitcoin-linux-build.assert
-    gpg --detach-sign ${VERSION}-win/${SIGNER}/bitcoin-win-build.assert
-    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/bitcoin-osx-build.assert
+    gpg --detach-sign ${VERSION}-linux/${SIGNER}/zoin-linux-build.assert
+    gpg --detach-sign ${VERSION}-win/${SIGNER}/zoin-win-build.assert
+    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/zoin-osx-build.assert
 ```
 
 This will create the `.sig` files that can be committed together with the `.assert` files to assert your
@@ -473,5 +474,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[bitcoin-core/gitian.sigs](https://github.com/bitcoin-core/gitian.sigs/) repository, or if that's not possible create a pull
-request. You can also mail the files to Wladimir (snguyen.ntu@gmail.com) and he will commit them.
+[bitcoin-core/gitian.sigs](https://github.com/zoinofficial/gitian.sigs/) repository, or if that's not possible create a pull
+request. You can also mail the files to Zhao Kwok and he will commit them.
