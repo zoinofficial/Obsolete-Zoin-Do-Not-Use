@@ -1,5 +1,5 @@
 ---
-name: "zoin-linux-0.13.2.0"
+name: "zoin-linux-0.13.2"
 enable_cache: true
 suites:
 - "trusty"
