@@ -16,7 +16,11 @@ Then install [Homebrew](http://brew.sh).
 Dependencies
 ----------------------
 
-    brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/versions/protobuf260 --c++11 qt5 libevent
+    brew install automake berkeley-db4 libtool boost miniupnpc openssl pkg-config protobuf python3 qt libevent
+
+If you want to build the disk image with `make deploy` (.dmg / optional), you need RSVG
+
+    brew install librsvg
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 
@@ -29,7 +33,7 @@ Build Zoin Core
     You can disable the GUI build by passing `--without-gui` to configure.
         
         ./autogen.sh
-        ./configure
+        ./configure --with-boost-libdir=/usr/local/Cellar/boost/1.66.0/lib
         make
 
 2.  It is recommended to build and run the unit tests:
@@ -40,18 +44,6 @@ Build Zoin Core
 
         make deploy
 
-Build Zoin Core on High Sierra with Boost 1.66
-----------------------------------------------
-Follow the steps above. When configuring, you want to define the mt versions of the boost library.
-You will also need to define the compilers to use:
-
-    ./configure --with-boost-libdir=/usr/local/lib \
-                --with-boost-thread=boost_thread-mt \
-                --with-boost-chrono=boost_chrono-mt \
-                --with-boost-system=boost_system-mt \
-                --with-boost-filesystem=boost_filesystem-mt \
-                --with-boost-unit-test-framework=boost_unit_test_framework-mt \
-                CXX=$(which g++) CC=$(which gcc)
 
 Running
 -------
