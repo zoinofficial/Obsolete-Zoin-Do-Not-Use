@@ -6,6 +6,7 @@
 #include "primitives/block.h"
 
 #include "main.h"
+#include "zerocoin.h"
 #include "hash.h"
 #include "tinyformat.h"
 #include "utilstrencodings.h"
@@ -21,7 +22,7 @@
 #include <algorithm>
 #include <string>
 #include "precomputed_hash.h"
-#include "zerocoin.h"
+
 
 
 unsigned char GetNfactor(int64_t nTimestamp) {
