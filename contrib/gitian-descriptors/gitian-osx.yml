@@ -1,5 +1,5 @@
 ---
-name: "zoin-osx-0.13.2"
+name: "zoin-osx-0.13.4"
 enable_cache: true
 suites:
 - "trusty"
