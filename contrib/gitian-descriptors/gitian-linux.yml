@@ -28,14 +28,15 @@ packages:
 - "ca-certificates"
 - "python"
 remotes:
-- "url": "https://github.com/zoinofficial/zoin.git"
-  "dir": "zoin"
+- "url": "https://github.com/zoinofficial/Zoin"
+  "dir": "Zoin"
 files: []
 script: |
 
   WRAP_DIR=$HOME/wrapped
-  HOSTS="i686-pc-linux-gnu x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu"
-  CONFIGFLAGS="--enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests --with-libs"
+  # HOSTS="i686-pc-linux-gnu x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu"
+  HOSTS="x86_64-linux-gnu"
+  CONFIGFLAGS="--enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests"
   FAKETIME_HOST_PROGS=""
   FAKETIME_PROGS="date ar ranlib nm"
   HOST_CFLAGS="-O2 -g"
@@ -108,12 +109,12 @@ script: |
       break
     fi
   done
-  \$REAL "\$@"
+  \$REAL \$@
   EOF
   chmod +x ${WRAP_DIR}/${prog}
   done
 
-  cd zoin
+  cd Zoin
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do
@@ -144,9 +145,6 @@ script: |
   find zoin-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ../$SOURCEDIST
   popd
 
-  # Workaround for tarball not building with the bare tag version (prep)
-  make -C src obj/build.h
-
   ORIGPATH="$PATH"
   # Extract the release tarball into a dir for each host and build
   for i in ${HOSTS}; do
@@ -156,11 +154,6 @@ script: |
     INSTALLPATH=`pwd`/installed/${DISTNAME}
     mkdir -p ${INSTALLPATH}
     tar --strip-components=1 -xf ../$SOURCEDIST
-
-    # Workaround for tarball not building with the bare tag version
-    echo '#!/bin/true' >share/genbuild.sh
-    mkdir src/obj
-    cp ../src/obj/build.h src/obj/
 
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}" LDFLAGS="${HOST_LDFLAGS}"
     make ${MAKEOPTS}
