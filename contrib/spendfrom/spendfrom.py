@@ -40,7 +40,7 @@ def determine_db_dir():
     if platform.system() == "Darwin":
         return os.path.expanduser("~/Library/Application Support/Zoin/")
     elif platform.system() == "Windows":
-        return os.path.join(os.environ['APPDATA'], "Zcoin")
+        return os.path.join(os.environ['APPDATA'], "Zoin")
     return os.path.expanduser("~/.zoin")
 
 def read_bitcoin_config(dbdir):
