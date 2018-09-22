@@ -96,16 +96,21 @@ QT_TS = \
 
 QT_FORMS_UI = \
   qt/forms/addressbookpage.ui \
-  qt/forms/qrcodedialog.ui \
   qt/forms/zerocoinpage.ui \
   qt/forms/askpassphrasedialog.ui \
   qt/forms/coincontroldialog.ui \
   qt/forms/editaddressdialog.ui \
   qt/forms/helpmessagedialog.ui \
+  qt/forms/zoinodes.ui \
   qt/forms/intro.ui \
+  qt/forms/qrcodedialog.ui \
   qt/forms/learnmorepage.ui \
   qt/forms/communitypage.ui \
   qt/forms/menupage.ui \
+  qt/forms/transactionfees.ui \
+  qt/forms/transactionview.ui \
+  qt/forms/votingpage.ui \
+  qt/forms/receivepage.ui \
   qt/forms/openuridialog.ui \
   qt/forms/optionsdialog.ui \
   qt/forms/overviewpage.ui \
@@ -115,17 +120,10 @@ QT_FORMS_UI = \
   qt/forms/sendcoinsdialog.ui \
   qt/forms/sendcoinsentry.ui \
   qt/forms/signverifymessagedialog.ui \
-  qt/forms/transactionfees.ui \
-  qt/forms/transactionview.ui \
-  qt/forms/transactiondescdialog.ui \
-  qt/forms/zoinodes.ui \
-  qt/forms/votingpage.ui
-
+  qt/forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
   qt/moc_addressbookpage.cpp \
-  qt/moc_qrcodedialog.cpp \
-  qt/moc_transactionfees.cpp \
   qt/moc_zerocoinpage.cpp \
   qt/moc_addresstablemodel.cpp \
   qt/moc_askpassphrasedialog.cpp \
@@ -141,11 +139,15 @@ QT_MOC_CPP = \
   qt/moc_editaddressdialog.cpp \
   qt/moc_guiutil.cpp \
   qt/moc_intro.cpp \
+  qt/moc_qrcodedialog.cpp \
+  qt/moc_transactionfees.cpp \
   qt/moc_learnmorepage.cpp \
   qt/moc_communitypage.cpp \
+  qt/moc_votingpage.cpp \
+  qt/moc_menupage.cpp \
   qt/moc_macdockiconhandler.cpp \
   qt/moc_macnotificationhandler.cpp \
-  qt/moc_menupage.cpp\
+  qt/moc_zoinodes.cpp \
   qt/moc_notificator.cpp \
   qt/moc_openuridialog.cpp \
   qt/moc_optionsdialog.cpp \
@@ -172,10 +174,7 @@ QT_MOC_CPP = \
   qt/moc_utilitydialog.cpp \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
-  qt/moc_walletview.cpp \
-  qt/moc_zoinodes.cpp \
-  qt/moc_votingpage.cpp
-
+  qt/moc_walletview.cpp
 
 BITCOIN_MM = \
   qt/macdockiconhandler.mm \
@@ -199,8 +198,6 @@ PROTOBUF_PROTO = qt/paymentrequest.proto
 
 BITCOIN_QT_H = \
   qt/addressbookpage.h \
-  qt/transactionfees.h \
-  Qt/qrcodedialog.h \
   qt/zerocoinpage.h \
   qt/addresstablemodel.h \
   qt/askpassphrasedialog.h \
@@ -217,11 +214,15 @@ BITCOIN_QT_H = \
   qt/guiconstants.h \
   qt/guiutil.h \
   qt/intro.h \
+  qt/transactionfees.h \
+  qt/qrcodedialog.h \
   qt/learnmorepage.h \
   qt/communitypage.h \
+  qt/votingpage.h \
+  qt/menupage.h \
   qt/macdockiconhandler.h \
   qt/macnotificationhandler.h \
-  qt/menupage.h \
+  qt/zoinodes.h \
   qt/networkstyle.h \
   qt/notificator.h \
   qt/openuridialog.h \
@@ -254,9 +255,7 @@ BITCOIN_QT_H = \
   qt/walletmodel.h \
   qt/walletmodeltransaction.h \
   qt/walletview.h \
-  qt/winshutdownmonitor.h \
-  qt/zoinodes.h \
-  qt/votingpage.h
+  qt/winshutdownmonitor.h
 
 RES_ICONS = \
   qt/res/icons/add.png \
@@ -347,15 +346,16 @@ BITCOIN_QT_WALLET_CPP = \
   qt/addressbookpage.cpp \
   qt/qrcodedialog.cpp \
   qt/transactionfees.cpp \
+  qt/menupage.cpp \
+  qt/learnmorepage.cpp \
+  qt/communitypage.cpp \
+  qt/votingpage.cpp \
   qt/zerocoinpage.cpp \
   qt/addresstablemodel.cpp \
   qt/askpassphrasedialog.cpp \
   qt/coincontroldialog.cpp \
   qt/coincontroltreewidget.cpp \
   qt/editaddressdialog.cpp \
-  qt/menupage.cpp \
-  qt/learnmorepage.cpp \
-  qt/communitypage.cpp \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \
   qt/paymentrequestplus.cpp \
@@ -376,7 +376,6 @@ BITCOIN_QT_WALLET_CPP = \
   qt/walletmodel.cpp \
   qt/walletmodeltransaction.cpp \
   qt/zoinodes.cpp \
-  qt/votingpage.cpp \
   qt/walletview.cpp
 
 BITCOIN_QT_CPP = $(BITCOIN_QT_BASE_CPP)
@@ -441,16 +440,15 @@ qt_zoin_qt_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 
 qt_zoin_qt_LDADD += tor/src/or/libtor.a \
-    tor/src/common/libor.a \
-    tor/src/common/libor-ctime.a \
-    tor/src/common/libor-crypto.a \
-    tor/src/common/libor-event.a \
-    tor/src/trunnel/libor-trunnel.a \
-    tor/src/common/libcurve25519_donna.a \
-    tor/src/ext/ed25519/donna/libed25519_donna.a \
-    tor/src/ext/ed25519/ref10/libed25519_ref10.a \
-    tor/src/ext/keccak-tiny/libkeccak-tiny.a
-
+	tor/src/common/libor.a \
+	tor/src/common/libor-ctime.a \
+	tor/src/common/libor-crypto.a \
+	tor/src/common/libor-event.a \
+	tor/src/trunnel/libor-trunnel.a \
+	tor/src/common/libcurve25519_donna.a \
+	tor/src/ext/ed25519/donna/libed25519_donna.a \
+	tor/src/ext/ed25519/ref10/libed25519_ref10.a \
+	tor/src/ext/keccak-tiny/libkeccak-tiny.a
 qt_zoin_qt_LDADD += $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CONSENSUS) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
   $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) $(ZLIB_LIBS) \
   $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
