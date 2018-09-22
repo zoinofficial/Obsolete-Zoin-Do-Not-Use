@@ -315,7 +315,61 @@ RES_ICONS = \
   qt/res/images/about.png \
   qt/res/images/splash.png \
   qt/res/images/splash-testnet.png \
-  qt/res/icons/transaction_abandoned.png
+  qt/res/icons/transaction_abandoned.png \
+  qt/res/icons/zoin-logo-resize.png \
+  qt/res/icons/zoin-logo-white.png \
+  qt/res/icons/zoinodes.png \
+  qt/res/icons/zoin.png \
+  qt/res/icons/bitcoin_.png \
+  qt/res/icons/down-arrow.png \
+  qt/res/icons/Exports_27.png \
+  qt/res/icons/Exports_29.png \
+  qt/res/icons/Exports_31.png \
+  qt/res/icons/Exports_33.png \
+  qt/res/icons/Exports_35.png \
+  qt/res/icons/Exports_37.png \
+  qt/res/icons/Exports_39.png \
+  qt/res/icons/Exports_41.png \
+  qt/res/icons/Exports_43.png \
+  qt/res/icons/Exports_45.png \
+  qt/res/icons/Exports_47.png \
+  qt/res/icons/Exports_60.png \
+  qt/res/icons/Exports_61.png \
+  qt/res/icons/Exports_63.png \
+  qt/res/icons/Exports_64.png \
+  qt/res/icons/Exports_65.png \
+  qt/res/icons/Exports_66.png \
+  qt/res/icons/Exports_67.png \
+  qt/res/icons/Exports_68.png \
+  qt/res/icons/Exports_69.png \
+  qt/res/icons/fees.png \
+  qt/res/icons/masternode.png \
+  qt/res/icons/nav-settings.png \
+  qt/res/icons/notsynced.png \
+  qt/res/icons/txdown.png \
+  qt/res/icons/txup.png \
+  qt/res/icons/vote.png \
+  qt/res/images/image_header.jpg \
+  qt/res/images/community_bg.png \
+  qt/res/images/Exports_21.png \
+  qt/res/images/Exports_22.png \
+  qt/res/images/Exports_17.png \
+  qt/res/images/Exports_18.png \
+  qt/res/images/Exports_11.png \
+  qt/res/images/Exports_12.png \
+  qt/res/images/Exports_05.png \
+  qt/res/images/Exports_03.png \
+  qt/res/images/Paper-Wallet.png \
+  qt/res/buttons/bitcointalk.png \
+  qt/res/buttons/facebook.png \
+  qt/res/buttons/github.png \
+  qt/res/buttons/reddit.png \
+  qt/res/buttons/slack.png \
+  qt/res/buttons/slackinvite.png \
+  qt/res/buttons/twitter.png \
+  qt/res/buttons/website.png \
+  qt/res/buttons/discord.png \
+  qt/res/buttons/telegram.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
