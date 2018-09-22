@@ -125,6 +125,7 @@ bool AppInit(int argc, char* argv[])
             fprintf(stderr,"Error reading zoinode configuration file: %s\n", strErr.c_str());
             return false;
         }
+
         // Command-line RPC
         bool fCommandLine = false;
         for (int i = 1; i < argc; i++)

@@ -51,7 +51,7 @@ static const int MAX_URI_LENGTH = 255;
 #define SPINNER_FRAMES 36
 
 #define QAPP_ORG_NAME "Zoin"
-#define QAPP_ORG_DOMAIN "zoinofficial.com"
+#define QAPP_ORG_DOMAIN "zoinofficial.io"
 #define QAPP_APP_NAME_DEFAULT "Zoin-Qt"
 #define QAPP_APP_NAME_TESTNET "Zoin-Qt-testnet"
 

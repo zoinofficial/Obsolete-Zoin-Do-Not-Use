@@ -8,7 +8,6 @@
 
 #include "bitcoingui.h"
 
-#include "zoinodeconfig.h"
 #include "chainparams.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
@@ -20,7 +19,7 @@
 #include "splashscreen.h"
 #include "utilitydialog.h"
 #include "winshutdownmonitor.h"
-
+#include "zoinodeconfig.h"
 
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
@@ -369,6 +368,7 @@ void BitcoinApplication::createOptionsModel(bool resetSettings)
 void BitcoinApplication::createWindow(const NetworkStyle *networkStyle)
 {
     window = new BitcoinGUI(platformStyle, networkStyle, 0);
+
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
     pollShutdownTimer->start(200);
@@ -648,7 +648,6 @@ int main(int argc, char *argv[])
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
 
 #ifdef ENABLE_WALLET
-
     /// 7a. parse znode.conf
     std::string strErr;
     if(!zoinodeConfig.read(strErr)) {

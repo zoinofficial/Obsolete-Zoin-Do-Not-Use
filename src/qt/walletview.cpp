@@ -476,7 +476,6 @@ void WalletView::fetchPrice()
         request.setUrl(QUrl("https://api.coinmarketcap.com/v1/ticker/zoin/?convert=USD"));
     else if(configs.value("Currency").toInt() == 1)
         request.setUrl(QUrl("https://api.coinmarketcap.com/v1/ticker/zoin/?convert=EUR"));
-
     request.setHeader(QNetworkRequest::ServerHeader, "application/json");
     //url.setPort(8850);
     nam->get(request);
