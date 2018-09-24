@@ -495,7 +495,7 @@ color: white;</string>
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="../../../../../coreupgrade/zoin/src/qt/bitcoin.qrc">
+               <iconset resource="../bitcoin.qrc">
                 <normaloff>:/icons/Exports_45</normaloff>:/icons/Exports_45</iconset>
               </property>
               <property name="iconSize">
@@ -786,7 +786,7 @@ border-style:solid;</string>
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="../../../../../coreupgrade/zoin/src/qt/bitcoin.qrc">
+                <iconset resource="../bitcoin.qrc">
                  <normaloff>:/icons/Exports_47</normaloff>:/icons/Exports_47</iconset>
                </property>
                <property name="iconSize">
@@ -1837,7 +1837,6 @@ border:0
   </layout>
  </widget>
  <resources>
-  <include location="../../../../../coreupgrade/zoin/src/qt/bitcoin.qrc"/>
   <include location="../bitcoin.qrc"/>
  </resources>
  <connections/>
