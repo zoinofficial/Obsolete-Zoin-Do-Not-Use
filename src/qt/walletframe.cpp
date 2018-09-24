@@ -43,7 +43,6 @@ bool WalletFrame::addWallet(const QString& name, WalletModel *walletModel)
     if (!gui || !clientModel || !walletModel || mapWalletViews.count(name) > 0)
         return false;
 
-
     WalletView *walletView = new WalletView(platformStyle, this);
     walletView->setBitcoinGUI(gui);
     walletView->setClientModel(clientModel);
@@ -51,8 +50,6 @@ bool WalletFrame::addWallet(const QString& name, WalletModel *walletModel)
     walletView->showOutOfSyncWarning(bOutOfSync);
 
      /* TODO we should goto the currently selected page once dynamically adding wallets is supported */
-
-
     walletView->gotoOverviewPage();
     walletStack->addWidget(walletView);
     mapWalletViews[name] = walletView;
@@ -128,11 +125,9 @@ void WalletFrame::gotoAddressBookPage()
 
 void WalletFrame::gotoHistoryPage()
 {
-
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoHistoryPage();
-
 }
 
 void WalletFrame::gotoReceiveCoinsPage()
@@ -144,11 +139,9 @@ void WalletFrame::gotoReceiveCoinsPage()
 
 void WalletFrame::gotoZoinodePage()
 {
-
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoZoinodePage();
-
 }
 
 void WalletFrame::gotoSendCoinsPage(QString addr)
