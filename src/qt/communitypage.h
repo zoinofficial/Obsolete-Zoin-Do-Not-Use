@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef COMMUNITYPAGE_H
-#define COMMUNITYPAGE_H
+#define COMMUNITYPAGE_H 
 
 #include <QWidget>
 
@@ -38,7 +38,4 @@ private Q_SLOTS:
 };
 
 
-#endif
-
-
-
+#endif  //COMMUNITYPAGE_H
