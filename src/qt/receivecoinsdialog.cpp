@@ -2,16 +2,15 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
+#include "receivecoinsdialog.h"
 #include "ui_receivecoinsdialog.h"
 
 #include "addresstablemodel.h"
-#include "optionsmodel.h"
 #include "bitcoingui.h"
 #include "editaddressdialog.h"
 #include "csvmodelwriter.h"
 #include "guiutil.h"
-#include "receivecoinsdialog.h"
+#include "optionsmodel.h"
 #include "walletmodel.h"
 #include "string.h"
 #include <univalue.h>
@@ -170,7 +169,6 @@ void ReceiveCoinsDialog::on_zerocoinMintButton_clicked()
                 QMessageBox::Ok, QMessageBox::Ok);
         }
     }
-
 }
 
 void ReceiveCoinsDialog::on_zerocoinSpendButton_clicked(){
