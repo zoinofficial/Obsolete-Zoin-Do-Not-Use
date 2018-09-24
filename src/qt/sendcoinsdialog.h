@@ -15,7 +15,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-
 class ClientModel;
 class OptionsModel;
 class PlatformStyle;
