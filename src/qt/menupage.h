@@ -61,7 +61,3 @@ public Q_SLOTS:
 };
 
 #endif // MENUPAGE_H
-
-
-
-
