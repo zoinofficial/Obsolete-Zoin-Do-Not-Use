@@ -34,7 +34,7 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *platformSt
     ui->signMessageButton_SM->setIcon(platformStyle->SingleColorIcon(":/icons/edit"));
     ui->clearButton_SM->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
     ui->addressBookButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
-    ui->verifyMessageButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/transaction_0"));
+    ui->verifyMessageButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/transaction0"));
     ui->clearButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
 
 #if QT_VERSION >= 0x040700
