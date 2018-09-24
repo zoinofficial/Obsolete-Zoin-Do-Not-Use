@@ -76,7 +76,6 @@
         <file alias="fontbigger">res/icons/fontbigger.png</file>
         <file alias="fontsmaller">res/icons/fontsmaller.png</file>
         <file alias="chevron">res/icons/chevron.png</file>
-        <file alias="zcoin_testnet">res/icons/zcoin_testnet.png</file>
         <file alias="zcoin">res/icons/zcoin.png</file>
         <file alias="zoin-logo-white">res/icons/zoin-logo-white.png</file>
         <file alias="fees">res/icons/fees.png</file>
