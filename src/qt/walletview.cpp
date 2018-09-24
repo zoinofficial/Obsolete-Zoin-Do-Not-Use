@@ -180,7 +180,6 @@ void WalletView::setClientModel(ClientModel *clientModel)
 
 void WalletView::setWalletModel(WalletModel *walletModel)
 {
-
     this->walletModel = walletModel;
 
     // Put transaction list in tabs
@@ -325,6 +324,7 @@ void WalletView::gotoSendCoinsPage(QString addr, QString name)
     //gui->getSendCoinsAction()->setChecked(true);
     gui->menu->SimulateSendClick();
     setCurrentWidget(sendCoinsPage);
+
     if (!addr.isEmpty())
         sendCoinsPage->setAddress(addr, name);
 }
