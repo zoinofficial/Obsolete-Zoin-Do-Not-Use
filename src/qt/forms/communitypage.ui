@@ -484,7 +484,7 @@ background-color: rgba(255, 255, 255,255);
                </property>
                <property name="icon">
                 <iconset resource="../bitcoin.qrc">
-                 <normaloff>:/buttons/web</normaloff>:/buttons/web</iconset>
+                 <normaloff>:/images/web</normaloff>:/images/web</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -507,7 +507,7 @@ background-color: rgba(255, 255, 255,255);
                </property>
                <property name="icon">
                 <iconset resource="../bitcoin.qrc">
-                 <normaloff>:/buttons/reddit</normaloff>:/buttons/reddit</iconset>
+                 <normaloff>:/images/reddit</normaloff>:/images/reddit</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -530,7 +530,7 @@ background-color: rgba(255, 255, 255,255);
                </property>
                <property name="icon">
                 <iconset resource="../bitcoin.qrc">
-                 <normaloff>:/buttons/btctalk</normaloff>:/buttons/btctalk</iconset>
+                 <normaloff>:/images/btctalk</normaloff>:/images/btctalk</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -553,7 +553,7 @@ background-color: rgba(255, 255, 255,255);
                </property>
                <property name="icon">
                 <iconset resource="../bitcoin.qrc">
-                 <normaloff>:/buttons/twitter</normaloff>:/buttons/twitter</iconset>
+                 <normaloff>:/images/twitter</normaloff>:/images/twitter</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -576,7 +576,7 @@ background-color: rgba(255, 255, 255,255);
                </property>
                <property name="icon">
                 <iconset resource="../bitcoin.qrc">
-                 <normaloff>:/buttons/discord</normaloff>:/buttons/discord</iconset>
+                 <normaloff>:/images/discord</normaloff>:/images/discord</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -599,7 +599,7 @@ background-color: rgba(255, 255, 255,255);
                </property>
                <property name="icon">
                 <iconset resource="../bitcoin.qrc">
-                 <normaloff>:/buttons/fb</normaloff>:/buttons/fb</iconset>
+                 <normaloff>:/images/fb</normaloff>:/images/fb</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -622,7 +622,7 @@ background-color: rgba(255, 255, 255,255);
                </property>
                <property name="icon">
                 <iconset resource="../bitcoin.qrc">
-                 <normaloff>:/buttons/telegram</normaloff>:/buttons/telegram</iconset>
+                 <normaloff>:/images/telegram</normaloff>:/images/telegram</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -645,7 +645,7 @@ background-color: rgba(255, 255, 255,255);
                </property>
                <property name="icon">
                 <iconset resource="../bitcoin.qrc">
-                 <normaloff>:/buttons/git</normaloff>:/buttons/git</iconset>
+                 <normaloff>:/images/git</normaloff>:/images/git</iconset>
                </property>
                <property name="iconSize">
                 <size>
