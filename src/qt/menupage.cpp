@@ -262,6 +262,3 @@ void MenuPage::SimulateVotingClick(){
     ClickedItemNonSlot(9);
 }
 
-
-
-
