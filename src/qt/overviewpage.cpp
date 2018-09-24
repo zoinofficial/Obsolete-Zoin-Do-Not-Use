@@ -16,13 +16,11 @@
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
 
-
 #ifdef WIN32
 #include <string.h>
 #endif
 
 #include "util.h"
-
 #include "compat.h"
 
 #include <QGraphicsDropShadowEffect>
@@ -59,19 +57,14 @@ public:
         int xspace = DECORATION_SIZE + 8;
         int ypad = 10;
         int halfheight = (mainRect.height() - 2*ypad)/2;
-
-
         QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad, mainRect.width() - xspace, halfheight);
         QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, mainRect.width() - xspace, halfheight);
         icon = platformStyle->SingleColorIcon(icon);
         icon.paint(painter, decorationRect);
 
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
-
         QString address = index.data(Qt::DisplayRole).toString();
-
         qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
-
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
         QColor foreground = option.palette.color(QPalette::Text);
@@ -156,11 +149,11 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     boost::filesystem::path pathTorSetting = GetDataDir()/"torsetting.dat";
     std::pair<bool,std::string> torEnabled = ReadBinaryFileTor(pathTorSetting.string().c_str());
     if(torEnabled.first){
-        if(torEnabled.second == "1"){
-            ui->checkboxEnabledTor->setChecked(true);
-        }else{
-            ui->checkboxEnabledTor->setChecked(false);
-        }
+		if(torEnabled.second == "1"){
+			ui->checkboxEnabledTor->setChecked(true);
+		}else{
+			ui->checkboxEnabledTor->setChecked(false);
+		}
     }
 
     statusBar = ui->statusBar;
@@ -190,7 +183,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
-
     connect(ui->checkboxEnabledTor, SIGNAL(toggled(bool)), this, SLOT(handleEnabledTorChanged()));
 
     // start with displaying the "out of sync" warnings
@@ -218,22 +210,23 @@ void OverviewPage::handleTransactionClicked(const QModelIndex &index)
 
 void OverviewPage::handleEnabledTorChanged(){
 
-    QMessageBox msgBox;
-    boost::filesystem::path pathTorSetting = GetDataDir()/"torsetting.dat";
-    if(ui->checkboxEnabledTor->isChecked()){
-        if (WriteBinaryFileTor(pathTorSetting.string().c_str(), "1")) {
-            msgBox.setText("Please restart the Zoin Core wallet to route your connection to TOR to protect your IP address. \nSyncing your wallet might be slower with TOR.");
-        }else{
-            msgBox.setText("Anonymous communication cannot enable");
-        }
-    }else{
-        if (WriteBinaryFileTor(pathTorSetting.string().c_str(), "0")) {
-            msgBox.setText("Please restart the Zoin Core wallet to disable your route connection to TOR.");
-        } else {
-            msgBox.setText("Anonymous communication cannot disable");
-        }
-    }
-    msgBox.exec();
+	QMessageBox msgBox;
+	boost::filesystem::path pathTorSetting = GetDataDir()/"torsetting.dat";
+
+	if(ui->checkboxEnabledTor->isChecked()){
+		if (WriteBinaryFileTor(pathTorSetting.string().c_str(), "1")) {
+			msgBox.setText("Please restart the Zoin Core wallet to route your connection to TOR to protect your IP address. \nSyncing your wallet might be slower with TOR.");
+		} else {
+			msgBox.setText("Anonymous communication cannot enable");
+		}
+	}else{
+		if (WriteBinaryFileTor(pathTorSetting.string().c_str(), "0")) {
+			msgBox.setText("Please restart the Zoin Core wallet to disable your route connection to TOR.");
+		} else {
+			msgBox.setText("Anonymous communication cannot disable");
+		}
+	}
+	msgBox.exec();
 }
 
 OverviewPage::~OverviewPage()
