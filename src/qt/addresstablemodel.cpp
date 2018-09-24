@@ -27,17 +27,17 @@ struct AddressTableEntry
         Zerocoin,
         Hidden /* QSortFilterProxyModel will filter these out */
     };
-    
+
     Type type;
     QString label;
     QString address;
     QString pubcoin;
-    
+
     AddressTableEntry() {}
     AddressTableEntry(Type type, const QString &label, const QString &address):
-    type(type), label(label), address(address) {}
+        type(type), label(label), address(address) {}
     AddressTableEntry(Type type, const QString &pubcoin):
-    type(type), pubcoin(pubcoin) {}
+            type(type), pubcoin(pubcoin) {}
 };
 
 struct AddressTableEntryLessThan
@@ -77,10 +77,10 @@ public:
     CWallet *wallet;
     QList<AddressTableEntry> cachedAddressTable;
     AddressTableModel *parent;
-    
+
     AddressTablePriv(CWallet *wallet, AddressTableModel *parent):
-    wallet(wallet), parent(parent) {}
-    
+        wallet(wallet), parent(parent) {}
+
     void refreshAddressTable()
     {
         cachedAddressTable.clear();
@@ -91,11 +91,11 @@ public:
                 const CBitcoinAddress& address = item.first;
                 bool fMine = IsMine(*wallet, address.Get());
                 AddressTableEntry::Type addressType = translateTransactionType(
-                                                                               QString::fromStdString(item.second.purpose), fMine);
+                        QString::fromStdString(item.second.purpose), fMine);
                 const std::string& strName = item.second.name;
                 cachedAddressTable.append(AddressTableEntry(addressType,
-                                                            QString::fromStdString(strName),
-                                                            QString::fromStdString(address.ToString())));
+                                  QString::fromStdString(strName),
+                                  QString::fromStdString(address.ToString())));
             }
             //[zoin] add load pubcoin
             std::list<CZerocoinEntry> listPubcoin;
@@ -109,7 +109,6 @@ public:
                                                                 QString::fromStdString(isUsed),
                                                                 QString::fromStdString(pubCoin)));
                 }
-                
             }
         }
         // qLowerBound() and qUpperBound() require our cachedAddressTable list to be sorted in asc order
@@ -132,10 +131,10 @@ public:
 
         switch(status)
         {
-            case CT_NEW:
-                if(inModel)
-                {
-                    qWarning() << "AddressTablePriv::updateEntry: Warning: Got CT_NEW, but entry is already in model";
+        case CT_NEW:
+            if(inModel)
+            {
+                qWarning() << "AddressTablePriv::updateEntry: Warning: Got CT_NEW, but entry is already in model";
                     break;
                 }
                 parent->beginInsertRows(QModelIndex(), lowerIndex, lowerIndex);
@@ -143,9 +142,9 @@ public:
                 parent->endInsertRows();
                 break;
             case CT_UPDATED:
-                if(!inModel)
-                {
-                    qWarning() << "AddressTablePriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
+            if(!inModel)
+            {
+                qWarning() << "AddressTablePriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
                     break;
                 }
                 lower->type = newEntryType;
@@ -153,9 +152,9 @@ public:
                 parent->emitDataChanged(lowerIndex);
                 break;
             case CT_DELETED:
-                if(!inModel)
-                {
-                    qWarning() << "AddressTablePriv::updateEntry: Warning: Got CT_DELETED, but entry is not in model";
+            if(!inModel)
+            {
+                qWarning() << "AddressTablePriv::updateEntry: Warning: Got CT_DELETED, but entry is not in model";
                     break;
                 }
                 parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex-1);
@@ -220,7 +219,7 @@ public:
 };
 
 AddressTableModel::AddressTableModel(CWallet *wallet, WalletModel *parent) :
-QAbstractTableModel(parent),walletModel(parent),wallet(wallet),priv(0)
+    QAbstractTableModel(parent),walletModel(parent),wallet(wallet),priv(0)
 {
     columns << tr("Label") << tr("Address");
     priv = new AddressTablePriv(wallet, this);
@@ -398,6 +397,7 @@ void AddressTableModel::updateEntry(const QString &address,
     // Update address book model from Bitcoin core
     priv->updateEntry(address, label, isMine, purpose, status);
 }
+
 //[zoin] AddressTableModel.updateEntry()
 void AddressTableModel::updateEntry(const QString &pubCoin, const QString &isUsed, int status)
 {
@@ -535,6 +535,6 @@ bool AddressTableModel::zerocoinSpend(string &stringError, string denomAmount)
         // Unlock wallet failed or was cancelled
         return false;
     }
-    
+
     return wallet->CreateZerocoinSpendModel(stringError, denomAmount);
 }
