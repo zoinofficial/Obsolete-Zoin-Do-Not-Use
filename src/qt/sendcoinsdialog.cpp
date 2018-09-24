@@ -252,9 +252,7 @@ void SendCoinsDialog::setModel(WalletModel *model)
         updateFeeSectionControls();
         updateMinFeeLabel();
         updateGlobalFeeVariables();
-
     }
-
 }
 
 SendCoinsDialog::~SendCoinsDialog()
@@ -630,7 +628,6 @@ void SendCoinsDialog::pasteEntry(const SendCoinsRecipient &rv)
     entry->setValue(rv);
     updateTabsAndLabels();
     */
-
 }
 
 bool SendCoinsDialog::handlePaymentRequest(const SendCoinsRecipient &rv)
@@ -798,7 +795,6 @@ void SendCoinsDialog::updateFeeMinimizedLabel()
 void SendCoinsDialog::updateMinFeeLabel()
 {/*
     if (model && model->getOptionsModel())
-
         ui->checkBoxMinimumFee_3->setText(tr("Pay only the required fee of %1").arg(
             BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), CWallet::GetRequiredFee(1000)) + "/kB")
         );*/
