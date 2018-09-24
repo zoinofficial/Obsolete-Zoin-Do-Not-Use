@@ -355,7 +355,6 @@ void RPCConsole::setzoinodeCount(const QString &strzoinodes)
     ui->zoinodeCount->setText(strzoinodes);
 }
 
-
 void RPCConsole::setClientModel(ClientModel *model)
 {
     clientModel = model;
