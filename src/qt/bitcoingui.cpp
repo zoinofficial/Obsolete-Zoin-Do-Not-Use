@@ -7,6 +7,7 @@
 #endif
 
 #include "bitcoingui.h"
+
 #include "bitcoinunits.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
@@ -294,7 +295,6 @@ BitcoinGUI::~BitcoinGUI()
 
 void BitcoinGUI::createActions()
 {
-
 	QActionGroup *tabGroup = new QActionGroup(this);
 
 	overviewAction = new QAction(platformStyle->SingleColorIcon(":/icons/overview"), tr("&Overview"), this);
@@ -305,7 +305,7 @@ void BitcoinGUI::createActions()
 	tabGroup->addAction(overviewAction);
 
 	sendCoinsAction = new QAction(platformStyle->SingleColorIcon(":/icons/send"), tr("&Send"), this);
-    sendCoinsAction->setStatusTip(tr("Send coins to a Zoin address"));
+	sendCoinsAction->setStatusTip(tr("Send coins to a Zoin address"));
 	sendCoinsAction->setToolTip(sendCoinsAction->statusTip());
 	sendCoinsAction->setCheckable(true);
 	sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
@@ -316,7 +316,7 @@ void BitcoinGUI::createActions()
 	sendCoinsMenuAction->setToolTip(sendCoinsMenuAction->statusTip());
 
 	receiveCoinsAction = new QAction(platformStyle->SingleColorIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
-    receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and zoin: URIs)"));
+	receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and zoin: URIs)"));
 	receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
 	receiveCoinsAction->setCheckable(true);
 	receiveCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
@@ -601,7 +601,6 @@ void BitcoinGUI::removeAllWallets()
 
 void BitcoinGUI::setWalletActionsEnabled(bool enabled)
 {
-
     overviewAction->setEnabled(enabled);
     sendCoinsAction->setEnabled(enabled);
     sendCoinsMenuAction->setEnabled(enabled);
@@ -617,7 +616,6 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     //usedSendingAddressesAction->setEnabled(enabled);
     //usedReceivingAddressesAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
-
 }
 
 void BitcoinGUI::createTrayIcon(const NetworkStyle *networkStyle)
@@ -796,11 +794,11 @@ void BitcoinGUI::setNumConnections(int count)
     QString icon;
     switch(count)
     {
-    case 0: icon = ":/icons/connect0"; break;
-    case 1: case 2: case 3: icon = ":/icons/connect1"; break;
-    case 4: case 5: case 6: icon = ":/icons/connect2"; break;
-    case 7: case 8: case 9: icon = ":/icons/connect3"; break;
-    default: icon = ":/icons/connect4"; break;
+    case 0: icon = ":/icons/connect_0"; break;
+    case 1: case 2: case 3: icon = ":/icons/connect_1"; break;
+    case 4: case 5: case 6: icon = ":/icons/connect_2"; break;
+    case 7: case 8: case 9: icon = ":/icons/connect_3"; break;
+    default: icon = ":/icons/connect_4"; break;
     }
     labelConnectionsIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
     labelConnectionsIcon->setToolTip(tr("%n active connection(s) to Zoin network", "", count));
@@ -848,8 +846,6 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     qint64 secs = blockDate.secsTo(currentDate);
 
     tooltip = tr("Processed %n block(s) of transaction history.", "", count);
-
-
 
     if(!zoinodeSync.IsBlockchainSynced())
     {
@@ -913,6 +909,7 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     progressBar->setToolTip(tooltip);
 }
 
+
 void BitcoinGUI::setAdditionalDataSyncProgress(int count, double nSyncProgress)
 {
     if(!clientModel)
@@ -964,6 +961,7 @@ void BitcoinGUI::setAdditionalDataSyncProgress(int count, double nSyncProgress)
     progressBarLabel->setToolTip(tooltip);
     progressBar->setToolTip(tooltip);
 }
+
 
 void BitcoinGUI::message(const QString &title, const QString &message, unsigned int style, bool *ret)
 {
