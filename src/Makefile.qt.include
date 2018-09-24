@@ -103,14 +103,6 @@ QT_FORMS_UI = \
   qt/forms/helpmessagedialog.ui \
   qt/forms/zoinodes.ui \
   qt/forms/intro.ui \
-  qt/forms/qrcodedialog.ui \
-  qt/forms/learnmorepage.ui \
-  qt/forms/communitypage.ui \
-  qt/forms/menupage.ui \
-  qt/forms/transactionfees.ui \
-  qt/forms/transactionview.ui \
-  qt/forms/votingpage.ui \
-  qt/forms/receivepage.ui \
   qt/forms/openuridialog.ui \
   qt/forms/optionsdialog.ui \
   qt/forms/overviewpage.ui \
@@ -120,6 +112,14 @@ QT_FORMS_UI = \
   qt/forms/sendcoinsdialog.ui \
   qt/forms/sendcoinsentry.ui \
   qt/forms/signverifymessagedialog.ui \
+  qt/forms/communitypage.ui \
+  qt/forms/learnmorepage.ui \
+  qt/forms/menupage.ui \
+  qt/forms/qrcodedialog.ui \
+  qt/forms/receivepage.ui \
+  qt/forms/transactionfees.ui \
+  qt/forms/transactionview.ui \
+  qt/forms/votingpage.ui \
   qt/forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
@@ -267,6 +267,7 @@ RES_ICONS = \
   qt/res/icons/bitcoin.png \
   qt/res/icons/zcoin.png \
   qt/res/icons/zerocoin.png \
+  qt/res/icons/zoinodes.png \
   qt/res/icons/qrcode.png \
   qt/res/icons/chevron.png \
   qt/res/icons/clock1.png \
@@ -312,15 +313,6 @@ RES_ICONS = \
   qt/res/icons/tx_mined.png \
   qt/res/icons/warning.png \
   qt/res/icons/verify.png \
-  qt/res/images/about.png \
-  qt/res/images/splash.png \
-  qt/res/images/splash-testnet.png \
-  qt/res/icons/transaction_abandoned.png \
-  qt/res/icons/zoin-logo-resize.png \
-  qt/res/icons/zoin-logo-white.png \
-  qt/res/icons/zoinodes.png \
-  qt/res/icons/zoin.png \
-  qt/res/icons/bitcoin_.png \
   qt/res/icons/down-arrow.png \
   qt/res/icons/Exports_27.png \
   qt/res/icons/Exports_29.png \
@@ -349,27 +341,20 @@ RES_ICONS = \
   qt/res/icons/txdown.png \
   qt/res/icons/txup.png \
   qt/res/icons/vote.png \
-  qt/res/images/image_header.jpg \
-  qt/res/images/community_bg.png \
-  qt/res/images/Exports_21.png \
-  qt/res/images/Exports_22.png \
-  qt/res/images/Exports_17.png \
-  qt/res/images/Exports_18.png \
-  qt/res/images/Exports_11.png \
-  qt/res/images/Exports_12.png \
-  qt/res/images/Exports_05.png \
-  qt/res/images/Exports_03.png \
-  qt/res/images/Paper-Wallet.png \
-  qt/res/buttons/bitcointalk.png \
-  qt/res/buttons/facebook.png \
-  qt/res/buttons/github.png \
-  qt/res/buttons/reddit.png \
-  qt/res/buttons/slack.png \
-  qt/res/buttons/slackinvite.png \
-  qt/res/buttons/twitter.png \
-  qt/res/buttons/website.png \
-  qt/res/buttons/discord.png \
-  qt/res/buttons/telegram.png
+  qt/res/icons/zcoin_testnet.png \
+  qt/res/icons/zoin-logo-white.png \
+  qt/res/icons/zoin.png \
+  qt/res/icons/zoin-logo-resize.png \
+  qt/res/icons/zcoin.icns \
+  qt/res/icons/zcoin.ico \
+  qt/res/icons/zcoin_testnet.ico \
+  qt/res/icons/old_bitcoin.icns \
+  qt/res/icons/old_bitcoin.ico \
+  qt/res/icons/old_bitcoin.png \
+  qt/res/icons/old_bitcoin_testnet.ico \
+  qt/res/icons/bitcoin_testnet.png \
+  qt/res/icons/bitcoin.icns \
+  qt/res/icons/transaction_abandoned.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
@@ -440,7 +425,39 @@ if ENABLE_WALLET
 BITCOIN_QT_CPP += $(BITCOIN_QT_WALLET_CPP)
 endif
 
-RES_IMAGES = 
+RES_IMAGES = \
+  qt/res/images/about.png \
+  qt/res/images/splash.png \
+  qt/res/images/splash-testnet.png \
+  qt/res/images/image_header.jpg \
+  qt/res/images/community_bg.png \
+  qt/res/images/Exports_03.png \
+  qt/res/images/Exports_05.png \
+  qt/res/images/Exports_11.png \
+  qt/res/images/Exports_12.png \
+  qt/res/images/Exports_17.png \
+  qt/res/images/Exports_18.png \
+  qt/res/images/Exports_21.png \
+  qt/res/images/Exports_22.png \
+  qt/res/images/Paper-Wallet.png \
+  qt/res/images/bitcointalk.png \
+  qt/res/images/facebook.png \
+  qt/res/images/github.png \
+  qt/res/images/reddit.png \
+  qt/res/images/slack.png \
+  qt/res/images/slackinvite.png \
+  qt/res/images/twitter.png \
+  qt/res/images/website.png \
+  qt/res/images/discord.png \
+  qt/res/images/telegram.png
+
+RES_FONTS = \
+  qt/res/fonts/ZoinBlack.ttf \
+  qt/res/fonts/ZoinLight.ttf \
+  qt/res/fonts/ZoinMedium.ttf \
+  qt/res/fonts/ZoinRegular.ttf \
+  qt/res/fonts/ZoinBold.ttf \
+  qt/res/fonts/ZoinLightItalic.ttf
 
 RES_MOVIES = $(wildcard qt/res/movies/spinner-*.png)
 

@@ -944,7 +944,6 @@ QString formatTimeOffset(int64_t nTimeOffset)
   return QString(QObject::tr("%1 s")).arg(QString::number((int)nTimeOffset, 10));
 }
 
-
 QString formatNiceTimeOffset(qint64 secs)
 {
     // Represent time from last generated block in human readable text
@@ -981,6 +980,5 @@ QString formatNiceTimeOffset(qint64 secs)
     }
     return timeBehindText;
 }
-
 
 } // namespace GUIUtil
