@@ -52,8 +52,6 @@ public:
     explicit WalletView(const PlatformStyle *platformStyle, QWidget *parent);
     ~WalletView();
 
-
-
     void setBitcoinGUI(BitcoinGUI *gui);
     /** Set the client model.
         The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
@@ -75,6 +73,7 @@ protected:
 private:
     ClientModel *clientModel;
     WalletModel *walletModel;
+
     OverviewPage *overviewPage;
     CommunityPage *communityPage;
     LearnMorePage *learnMorePage;
