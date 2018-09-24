@@ -76,7 +76,6 @@ AddressBookPage::~AddressBookPage() {
 }
 
 void AddressBookPage::setModel(AddressTableModel *model) {
-
     this->model = model;
     if (!model)
         return;
