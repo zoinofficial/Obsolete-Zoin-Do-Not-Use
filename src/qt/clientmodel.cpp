@@ -247,7 +247,8 @@ static void NotifyNumConnectionsChanged(ClientModel *clientmodel, int newNumConn
 
 static void NotifyAdditionalDataSyncProgressChanged(ClientModel *clientmodel, int count, double nSyncProgress)
 {
-    QMetaObject::invokeMethod(clientmodel, "additionalDataSyncProgressChanged", Qt::QueuedConnection, Q_ARG(int, count),Q_ARG(double, nSyncProgress));
+    QMetaObject::invokeMethod(clientmodel, "additionalDataSyncProgressChanged", Qt::QueuedConnection, Q_ARG(int, count),
+                              Q_ARG(double, nSyncProgress));
 }
 
 static void NotifyAlertChanged(ClientModel *clientmodel)
