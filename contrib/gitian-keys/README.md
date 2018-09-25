@@ -2,7 +2,7 @@ PGP keys
 ========
 
 This folder contains the public keys of Zoin developers and active contributors.
-
+https://zoinofficial.io/
 The keys are mainly used to sign git commits or the build results of Gitian
 builds.
 
