@@ -29,6 +29,23 @@ static libzerocoin::Params *ZCParams = new libzerocoin::Params(bnTrustedModulus)
 
 static CZerocoinState zerocoinState;
 
+static bool CheckZerocoinSpendSerial(CValidationState &state, CZerocoinTxInfo *zerocoinTxInfo, libzerocoin::CoinDenomination denomination, const CBigNum &serial, int nHeight, bool fConnectTip) {
+    // check for zerocoin transaction in this block as well
+    if (zerocoinTxInfo && !zerocoinTxInfo->fInfoIsComplete && zerocoinTxInfo->spentSerials.count(serial) > 0)
+        return state.DoS(0, error("CTransaction::CheckTransaction() : two or more spends with same serial in the same block"));
+
+    // check for used serials in zerocoinState
+    if (zerocoinState.IsUsedCoinSerial(serial)) {
+        // Proceed with checks ONLY if we're accepting tx into the memory pool or connecting block to the existing blockchain
+        if (nHeight == INT_MAX || fConnectTip) {
+            return state.DoS(0, error("CTransaction::CheckTransaction() : The CoinSpend serial has been used"));
+        }
+    }
+
+
+    return true;
+}
+
 bool CheckSpendZerocoinTransaction(const CTransaction &tx,
                                 libzerocoin::CoinDenomination targetDenomination,
                                 CValidationState &state,
@@ -36,7 +53,8 @@ bool CheckSpendZerocoinTransaction(const CTransaction &tx,
                                 bool isVerifyDB,
                                 int nHeight,
                                 bool isCheckWallet,
-                                CZerocoinTxInfo *zerocoinTxInfo) {
+                                CZerocoinTxInfo *zerocoinTxInfo,
+				int index) {
 
     // Check for inputs only, everything else was checked before
     LogPrintf("CheckSpendZerocoinTransaction denomination=%d nHeight=%d\n", targetDenomination, nHeight);
@@ -210,21 +228,10 @@ bool CheckSpendZerocoinTransaction(const CTransaction &tx,
             // has not been spent before (in another ZEROCOIN_SPEND) transaction.
             // The serial number is stored as a Bignum.
             CBigNum serial = newSpend.getCoinSerialNumber();
-            if (nHeight > ZC_CHECK_BUG_FIXED_AT_BLOCK &&
-                    // do not check for duplicates in case we've seen exact copy of this tx in this block before
-                    !(zerocoinTxInfo &&
-                        zerocoinTxInfo->zcTransactions.count(hashTx) > 0) &&
-                    // check for used serials both in zerocoinState and in other transactions of this block
-                    (zerocoinState.IsUsedCoinSerial(serial) ||
-                        // check for zerocoin transaction in the same block as well
-                        (zerocoinTxInfo &&
-                            !zerocoinTxInfo->fInfoIsComplete &&
-                         zerocoinTxInfo->spentSerials.count(serial) > 0))) {
-
-                if (nHeight < ZC_V1_5_STARTING_BLOCK)
-                    LogPrintf("ZCSpend: height=%d, denomination=%d, serial=%s\n", nHeight, (int)newSpend.getDenomination(), newSpend.getCoinSerialNumber().ToString());
-                else
-                    return state.DoS(0, error("CTransaction::CheckTransaction() : The CoinSpend serial has been used"));
+            // do not check for duplicates in case we've seen exact copy of this tx in this block before
+            if (nHeight > ZC_V1_5_STARTING_BLOCK && !(zerocoinTxInfo && zerocoinTxInfo->zcTransactions.count(hashTx) > 0)) {
+                if (!CheckZerocoinSpendSerial(state, zerocoinTxInfo, newSpend.getDenomination(), serial, nHeight, false))
+                    return state.DoS(100, error("CheckZerocoinTransaction : invalid zerocoin spend serial"));
             }
 
             if(!isVerifyDB && !isCheckWallet) {
@@ -386,6 +393,8 @@ bool CheckZerocoinTransaction(const CTransaction &tx,
 	if(tx.IsZerocoinSpend()) {
 		// Check vOut
 		// Only one loop, we checked on the format before enter this case
+		// Mark index to check multiple spends
+        	int i = 0;
 		BOOST_FOREACH(const CTxOut &txout, tx.vout)
 		{
 			if (!isVerifyDB) {
@@ -396,7 +405,7 @@ bool CheckZerocoinTransaction(const CTransaction &tx,
                 case libzerocoin::ZQ_PEDERSEN*COIN:
                 case libzerocoin::ZQ_WILLIAMSON*COIN:
                     if((nHeight >= ZC_V1_5_STARTING_BLOCK + 500)){
-                        if(!CheckSpendZerocoinTransaction(tx, (libzerocoin::CoinDenomination)(txout.nValue / COIN), state, hashTx, isVerifyDB, nHeight, isCheckWallet, zerocoinTxInfo))
+                        if(!CheckSpendZerocoinTransaction(tx, (libzerocoin::CoinDenomination)(txout.nValue / COIN), state, hashTx, isVerifyDB, nHeight, isCheckWallet, zerocoinTxInfo, i))
                             return false;
                     }
                     else
@@ -406,6 +415,7 @@ bool CheckZerocoinTransaction(const CTransaction &tx,
                     return state.DoS(100, error("CheckZerocoinTransaction : invalid spending txout value"));
                 }
 			}
+			i++;
 		}
 	}
 	
