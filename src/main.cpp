@@ -4439,10 +4439,13 @@ bool ProcessNewBlock(CValidationState &state, const CChainParams &chainparams, C
         // Store to disk
         CBlockIndex *pindex = NULL;
         bool fNewBlock = false;
-        if (nHeight > chainActive.Height() + 1) {
-            return true;
-        }
         bool ret = AcceptBlock(*pblock, state, chainparams, &pindex, fRequested, dbp, &fNewBlock);
+        //only skip block check if out of order for zerocoin
+        if(!ret){
+            if (nHeight > chainActive.Height() + 1) {
+                return true;
+            }
+        }
         if (pindex && pfrom) {
             mapBlockSource[pindex->GetBlockHash()] = std::make_pair(pfrom->GetId(), fMayBanPeerIfInvalid);
             if (fNewBlock) pfrom->nLastBlockTime = GetTime();
