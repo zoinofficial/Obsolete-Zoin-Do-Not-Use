@@ -200,7 +200,7 @@ bool CTransaction::IsCoinBase() const
 
 bool CTransaction::IsZerocoinSpend() const
 {
-    return (vin.size() == 1 && vin[0].prevout.IsNull() && (vin[0].scriptSig[0] == OP_ZEROCOINSPEND) && (vout.size() == 1) );
+    return (vin.size() > 0 && vin.size() == vout.size() && vin[0].prevout.IsNull() && (vin[0].scriptSig[0] == OP_ZEROCOINSPEND));
 }
 
 bool CTransaction::IsZerocoinMint(const CTransaction& tx) const
